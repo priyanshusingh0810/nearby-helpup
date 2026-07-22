@@ -427,3 +427,19 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Environment / Secret API files
+.env
+.env.local
+.env.*.local
+*.env
+*.env.*
+
+# Local Databases
+*.db
+*.sqlite
+*.sqlite3
+backend/nearby_helpup.db
+
+# User Uploads
+backend/static/uploads/
