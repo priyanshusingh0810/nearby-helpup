@@ -48,8 +48,14 @@ export const api = {
         body: formData,
       });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || 'Login failed');
+        let errorDetail = `Login failed (${res.status})`;
+        try {
+          const err = await res.json();
+          errorDetail = err.detail || errorDetail;
+        } catch (e) {
+          // response body was not valid JSON
+        }
+        throw new Error(errorDetail);
       }
       return res.json();
     },
