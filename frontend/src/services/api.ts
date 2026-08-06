@@ -1,4 +1,18 @@
-const BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.port === '5173' ? 'http://localhost:8000/api/v1' : '/api/v1');
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if (port === '5173' || port === '3000' || host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:8000/api/v1';
+    }
+  }
+  return '/api/v1';
+};
+
+const BASE_URL = getApiBaseUrl();
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
