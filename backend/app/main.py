@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import os
@@ -388,10 +389,42 @@ def on_startup():
     finally:
         db.close()
 
-@app.get("/")
-def read_root():
-    return {
-        "status": "online",
-        "project": "Nearby HelpUp API",
-        "documentation": f"{settings.API_V1_STR}/docs"
-    }
+# Direct Single-Service Frontend SPA Serving
+possible_dist_paths = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend/dist")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/dist")),
+    os.path.abspath("frontend/dist"),
+    os.path.abspath("../frontend/dist"),
+]
+
+frontend_dist = None
+for dist_path in possible_dist_paths:
+    if os.path.exists(dist_path) and os.path.isdir(dist_path):
+        frontend_dist = dist_path
+        break
+
+if frontend_dist:
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend_assets")
+
+    @app.get("/{full_path:path}")
+    def serve_spa(full_path: str):
+        if full_path.startswith("api/") or full_path.startswith("static/"):
+            return {"detail": "Not Found"}
+        
+        file_path = os.path.join(frontend_dist, full_path)
+        if full_path and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+else:
+    @app.get("/")
+    def read_root():
+        return {
+            "status": "online",
+            "project": "Nearby HelpUp API",
+            "documentation": f"{settings.API_V1_STR}/docs"
+        }
+

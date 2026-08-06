@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.port === '5173' ? 'http://localhost:8000/api/v1' : '/api/v1');
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
@@ -157,7 +157,7 @@ export const api = {
     getWebSocketUrl(chatId: number): string {
       const token = localStorage.getItem('token') || '';
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsHost = import.meta.env.VITE_WS_URL || 'localhost:8000';
+      const wsHost = import.meta.env.VITE_WS_URL || (typeof window !== 'undefined' && window.location.port === '5173' ? 'localhost:8000' : window.location.host);
       return `${wsProtocol}//${wsHost}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
     }
   },
