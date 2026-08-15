@@ -176,8 +176,21 @@ export const api = {
     },
     getWebSocketUrl(chatId: number): string {
       const token = localStorage.getItem('token') || '';
+      if (import.meta.env.VITE_WS_URL) {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        return `${wsProtocol}//${import.meta.env.VITE_WS_URL}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
+      }
+      if (import.meta.env.VITE_API_URL) {
+        try {
+          const url = new URL(import.meta.env.VITE_API_URL);
+          const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+          return `${wsProtocol}//${url.host}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
+        } catch (e) {
+          // fallback to default
+        }
+      }
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsHost = import.meta.env.VITE_WS_URL || (typeof window !== 'undefined' && window.location.port === '5173' ? 'localhost:8000' : window.location.host);
+      const wsHost = (typeof window !== 'undefined' && window.location.port === '5173' ? 'localhost:8000' : window.location.host);
       return `${wsProtocol}//${wsHost}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
     }
   },
