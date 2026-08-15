@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
       return 'http://localhost:8000/api/v1';
     }
   }
-  return '/api/v1';
+  return 'https://nearby-helpup-backend-pq3w.onrender.com/api/v1';
 };
 
 const BASE_URL = getApiBaseUrl();
