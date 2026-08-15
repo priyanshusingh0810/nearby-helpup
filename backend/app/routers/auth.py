@@ -98,9 +98,27 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 
 @router.post("/google-login", response_model=Token)
 def google_login(profile: dict, db: Session = Depends(get_db)):
-    email = profile.get("email")
-    name = profile.get("name", "Google User")
-    google_id = profile.get("id")
+    # Support Google ID Token credential (from Google Identity Services)
+    if "credential" in profile and profile["credential"]:
+        try:
+            import base64
+            credential = profile["credential"]
+            payload_segment = credential.split('.')[1]
+            padded = payload_segment + '=' * (-len(payload_segment) % 4)
+            decoded_bytes = base64.urlsafe_b64decode(padded)
+            token_claims = json.loads(decoded_bytes)
+            
+            email = token_claims.get("email")
+            name = token_claims.get("name", "Google User")
+            google_id = token_claims.get("sub")
+            picture = token_claims.get("picture")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid Google ID token: {str(e)}")
+    else:
+        email = profile.get("email")
+        name = profile.get("name", "Google User")
+        google_id = profile.get("id") or profile.get("sub")
+        picture = profile.get("picture")
     
     if not email:
         raise HTTPException(status_code=400, detail="Email is required from Google profile")
@@ -121,7 +139,7 @@ def google_login(profile: dict, db: Session = Depends(get_db)):
             username=username,
             name=name,
             hashed_password=hashed_password,
-            profile_photo=profile.get("picture", f"https://api.dicebear.com/7.x/adventurer/svg?seed={username}"),
+            profile_photo=picture or f"https://api.dicebear.com/7.x/adventurer/svg?seed={username}",
             identity_verified=True, # Auto-verify email via Google
             phone_verified=False,
             trust_score=80.0 # extra bump for verified email provider
@@ -129,6 +147,10 @@ def google_login(profile: dict, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+    elif picture and (not user.profile_photo or "dicebear" in user.profile_photo):
+        # Update profile photo if user has default
+        user.profile_photo = picture
+        db.commit()
         
     access_token = create_access_token(subject=user.id)
     return {"access_token": access_token, "token_type": "bearer"}
