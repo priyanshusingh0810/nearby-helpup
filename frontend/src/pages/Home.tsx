@@ -20,6 +20,7 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import GlassCard from '../components/common/GlassCard';
 import { WeatherWidget } from '../components/widgets/WeatherWidget';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();
@@ -259,33 +260,61 @@ export const Home: React.FC = () => {
     return mapping[type.toLowerCase()] || 'bg-slate-50 text-slate-650';
   };
 
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+  
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="flex-1 p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
+    <motion.div 
+      variants={staggerContainer}
+      initial="hidden"
+      animate="show"
+      className="flex-1 p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full"
+    >
       
       {/* Voice Recording Modal */}
-      {voiceRecording && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 p-8 rounded-3xl flex flex-col items-center gap-6 max-w-sm w-full text-center shadow-2xl animate-scale-in">
-            <button className="self-end text-slate-400 hover:text-slate-600 transition-colors" onClick={() => setVoiceRecording(false)}>
-              <X className="h-5 w-5" />
-            </button>
-            <div className="relative h-20 w-20">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-500/20 to-rose-500/5 animate-ping" />
-              <div className="absolute inset-1 rounded-full bg-gradient-to-br from-rose-500/15 to-rose-500/5 animate-pulse" />
-              <div className="relative h-full w-full bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-950/40 dark:to-rose-950/20 rounded-full flex items-center justify-center">
-                <Mic className="h-8 w-8 text-rose-500" />
+      <AnimatePresence>
+        {voiceRecording && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 p-8 rounded-3xl flex flex-col items-center gap-6 max-w-sm w-full text-center shadow-2xl"
+            >
+              <button className="self-end text-slate-400 hover:text-slate-600 transition-colors" onClick={() => setVoiceRecording(false)}>
+                <X className="h-5 w-5" />
+              </button>
+              <div className="relative h-20 w-20">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-500/20 to-rose-500/5 animate-ping" />
+                <div className="absolute inset-1 rounded-full bg-gradient-to-br from-rose-500/15 to-rose-500/5 animate-pulse" />
+                <div className="relative h-full w-full bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-950/40 dark:to-rose-950/20 rounded-full flex items-center justify-center">
+                  <Mic className="h-8 w-8 text-rose-500" />
+                </div>
               </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent dark:from-white dark:to-slate-300">{voiceStatus}</h4>
-              <p className="text-[10px] text-slate-400 mt-1">Speak clearly into your microphone device</p>
-            </div>
-          </div>
-        </div>
-      )}
+              <div>
+                <h4 className="text-sm font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent dark:from-white dark:to-slate-300">{voiceStatus}</h4>
+                <p className="text-[10px] text-slate-400 mt-1">Speak clearly into your microphone device</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Hello, <span className="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">{user?.name || 'Neighbor'}</span> 👋
@@ -296,15 +325,15 @@ export const Home: React.FC = () => {
         </div>
         <Link
           to="/create-listing"
-          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-3 text-xs font-bold text-white hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20 dark:shadow-indigo-500/10 transition-all duration-300 w-full sm:w-auto hover:-translate-y-[1px] hover:shadow-xl hover:shadow-indigo-500/25"
+          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-3 text-xs font-bold text-white hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20 dark:shadow-indigo-500/10 transition-all duration-300 w-full sm:w-auto hover:-translate-y-[2px] hover:shadow-xl hover:shadow-indigo-500/30"
         >
           <Plus className="h-4.5 w-4.5" />
           <span>New Share / Request</span>
         </Link>
-      </div>
+      </motion.div>
 
       {/* Search Input Container */}
-      <div className="flex flex-col gap-4">
+      <motion.div variants={fadeInUp} className="flex flex-col gap-4">
         <div className="flex gap-2 max-w-3xl w-full">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
@@ -386,7 +415,7 @@ export const Home: React.FC = () => {
 
       {/* Emergency Broadcast Feed */}
       {activeEmergencies.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <motion.div variants={fadeInUp} className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-rose-500 font-bold text-sm">
             <AlertTriangle className="h-5 w-5 animate-bounce" />
             <span>Active Nearby Emergencies</span>
@@ -431,6 +460,7 @@ export const Home: React.FC = () => {
       )}
 
       {/* Interactive Neighborhood Map Node preview */}
+      <motion.div variants={fadeInUp}>
       <GlassCard className="p-5 flex flex-col gap-4" hoverEffect={false}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-3">
           <div className="flex items-center gap-2.5">
@@ -663,9 +693,10 @@ export const Home: React.FC = () => {
           )}
         </div>
       </GlassCard>
+      </motion.div>
 
       {/* Horizontal Scroll Category Selector */}
-      <div className="flex flex-col gap-3">
+      <motion.div variants={fadeInUp} className="flex flex-col gap-3">
         <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-450">Browse Categories</span>
         <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
           <button
@@ -695,7 +726,7 @@ export const Home: React.FC = () => {
       </div>
 
       {/* Dashboard Feed Grid */}
-      <div className="grid lg:grid-cols-3 gap-6 md:gap-8 items-start">
+      <motion.div variants={fadeInUp} className="grid lg:grid-cols-3 gap-6 md:gap-8 items-start">
         
         {/* Left main feed (Active listings list) */}
         <div className="lg:col-span-2 flex flex-col gap-6">
@@ -731,9 +762,15 @@ export const Home: React.FC = () => {
               ))}
             </div>
           ) : regularListings.length > 0 ? (
-            <div className="grid sm:grid-cols-2 gap-4">
+            <motion.div 
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+              className="grid sm:grid-cols-2 gap-4"
+            >
               {regularListings.map((item) => (
-                <GlassCard key={item.id} className="overflow-hidden flex flex-col justify-between h-[340px] border-slate-100/50 group">
+                <motion.div key={item.id} variants={fadeInUp}>
+                <GlassCard className="overflow-hidden flex flex-col justify-between h-[340px] border-slate-100/50 group">
                   <div>
                     {/* Item Image with gradient overlay */}
                     <div className="h-40 w-full relative bg-slate-100 dark:bg-slate-950 overflow-hidden">
@@ -784,8 +821,9 @@ export const Home: React.FC = () => {
                     </Link>
                   </div>
                 </GlassCard>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
             <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl dark:border-slate-800 bg-white/30">
               <span className="text-3xl">📭</span>
@@ -918,6 +956,6 @@ export const Home: React.FC = () => {
 
       </div>
 
-    </div>
+    </motion.div>
   );
 };

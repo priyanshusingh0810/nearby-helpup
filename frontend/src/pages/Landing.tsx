@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/common/GlassCard';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 export const Landing: React.FC = () => {
   const { user } = useAuth();
@@ -109,141 +110,258 @@ export const Landing: React.FC = () => {
     }
   };
 
+  const { scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const opacityHero = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scaleHero = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 overflow-hidden relative selection:bg-indigo-500/30">
       
       {/* Background decoration elements */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-500/15 rounded-full blur-[120px] pointer-events-none animate-glow-pulse" />
-      <div className="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-purple-500/10 rounded-full blur-[140px] pointer-events-none animate-glow-pulse delay-300" />
-      <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none animate-glow-pulse delay-500" />
-      <div className="absolute top-1/2 right-0 w-[300px] h-[300px] bg-pink-500/8 rounded-full blur-[100px] pointer-events-none" />
+      <div className="fixed inset-0 bg-grid pointer-events-none z-0 opacity-40 dark:opacity-20" />
+      <motion.div 
+        className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none z-0" 
+        animate={{
+          x: [0, 50, -50, 0],
+          y: [0, -50, 50, 0],
+          scale: [1, 1.1, 0.9, 1]
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div 
+        className="fixed top-1/3 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[160px] pointer-events-none z-0"
+        animate={{
+          x: [0, -60, 40, 0],
+          y: [0, 70, -30, 0],
+          scale: [1, 0.8, 1.2, 1]
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }}
+      />
+      <motion.div 
+        className="fixed bottom-10 left-10 w-[450px] h-[450px] bg-emerald-500/8 rounded-full blur-[140px] pointer-events-none z-0" 
+        animate={{
+          x: [0, 80, -20, 0],
+          y: [0, -40, 60, 0],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear", delay: 4 }}
+      />
+      <div className="fixed top-1/2 right-0 w-[400px] h-[400px] bg-pink-500/8 rounded-full blur-[120px] pointer-events-none z-0 animate-pulse delay-700" />
 
       {/* Glass Navigation Header */}
-      <nav className="flex items-center justify-between px-6 py-4 md:px-12 bg-white/50 dark:bg-slate-950/50 backdrop-blur-2xl backdrop-saturate-[180%] sticky top-0 z-50 border-b border-slate-200/30 dark:border-slate-800/30">
+      <motion.nav 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="flex items-center justify-between px-6 py-4 md:px-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-3xl backdrop-saturate-[200%] sticky top-0 z-50 border-b border-white/20 dark:border-slate-800/30 shadow-sm"
+      >
         <div className="flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 text-white text-xl font-bold shadow-lg shadow-indigo-500/25 dark:shadow-indigo-500/15">
+          <motion.div 
+            whileHover={{ scale: 1.05, rotate: 10 }}
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 text-white text-xl font-bold shadow-lg shadow-indigo-500/25 dark:shadow-indigo-500/15"
+          >
             🤝
-          </div>
+          </motion.div>
           <div>
             <span className="text-lg font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
               Nearby HelpUp
             </span>
-            <span className="block text-[8px] tracking-widest bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent font-extrabold uppercase">
+            <span className="block text-[8px] tracking-widest text-gradient-brand font-extrabold uppercase">
               Hyperlocal Community
             </span>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Link
-            to="/login"
-            className="rounded-full bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-2.5 text-xs font-bold text-white hover:from-slate-800 hover:to-slate-700 dark:from-white dark:to-slate-100 dark:text-slate-950 dark:hover:from-slate-100 dark:hover:to-slate-200 shadow-lg shadow-slate-900/10 dark:shadow-none transition-all duration-200 flex items-center gap-2"
-          >
-            <span>{user ? 'Enter App' : 'Get Started'}</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+          <Link to="/login">
+            <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="rounded-full bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-2.5 text-xs font-bold text-white dark:from-white dark:to-slate-200 dark:text-slate-950 shadow-xl shadow-slate-900/20 dark:shadow-white/10 transition-all duration-300 flex items-center gap-2 group border border-slate-700/50 dark:border-white/50"
+            >
+              <span>{user ? 'Enter App' : 'Get Started'}</span>
+              <motion.div group-hover={{ x: 4 }} transition={{ type: "spring" }}>
+                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+              </motion.div>
+            </motion.div>
           </Link>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative px-6 py-28 md:py-40 md:px-12 flex flex-col items-center text-center max-w-5xl mx-auto">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/30 dark:border-indigo-800/20 px-4 py-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-8 uppercase tracking-wider animate-fade-in">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+      <motion.section 
+        style={{ opacity: opacityHero, scale: scaleHero }}
+        className="relative px-6 py-28 md:py-40 md:px-12 flex flex-col items-center text-center max-w-5xl mx-auto z-10"
+      >
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
+          className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/50 dark:border-indigo-800/40 px-4 py-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mb-8 uppercase tracking-wider shadow-sm backdrop-blur-md"
+        >
+          <Sparkles className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
           <span>The Operating System for Your Neighborhood</span>
-        </span>
+        </motion.div>
         
-        <h1 className="text-4xl font-extrabold tracking-tight md:text-7xl text-slate-900 dark:text-white font-sans max-w-4xl leading-[1.08] mb-6 animate-fade-in-up">
+        <motion.h1 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.3 }}
+          className="text-4xl font-extrabold tracking-tight md:text-7xl text-slate-900 dark:text-white font-sans max-w-4xl leading-[1.08] mb-6"
+        >
           Everything You Need, <br />
-          <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
+          <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%] drop-shadow-sm">
             Right Next Door.
           </span>
-        </h1>
+        </motion.h1>
         
-        <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed mb-12 animate-fade-in-up delay-200">
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed mb-12 font-medium"
+        >
           Borrow items, swap skills, coordinate emergencies, join active local clubs, and meet neighbors with common interests in real time.
-        </p>
+        </motion.p>
 
         {/* Global Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="w-full max-w-2xl bg-white/75 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/50 dark:border-slate-800/30 p-2 rounded-2xl flex items-center gap-2 shadow-2xl shadow-slate-200/40 dark:shadow-black/20 mb-14 animate-fade-in-up delay-300">
+        <motion.form 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.6 }}
+          onSubmit={handleSearchSubmit} 
+          className="w-full max-w-2xl bg-white/75 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/80 dark:border-slate-700/50 p-2 rounded-2xl flex items-center gap-2 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.4)] mb-14 hover:shadow-[0_12px_40px_-4px_rgba(79,70,229,0.15)] transition-shadow duration-500"
+        >
           <div className="flex-1 flex items-center gap-2 px-3">
             <Search className="h-5 w-5 text-slate-400 shrink-0" />
             <input
               type="text"
-              placeholder="What do you need nearby? (e.g. DSLR camera, football club, calculator, volunteer...)"
+              placeholder="What do you need nearby? (e.g. DSLR camera, football club...)"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none border-none text-slate-800 dark:text-white placeholder:text-slate-400/70"
+              className="w-full bg-transparent text-sm outline-none border-none text-slate-800 dark:text-white placeholder:text-slate-400/70 font-medium"
             />
           </div>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
-            className="rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-6 py-3 text-xs transition-all duration-300 shrink-0 flex items-center gap-1.5 shadow-lg shadow-indigo-500/20"
+            className="rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-6 py-3 text-xs transition-all duration-300 shrink-0 flex items-center gap-1.5 shadow-lg shadow-indigo-500/30"
           >
             <span>Search</span>
             <ArrowRight className="h-4 w-4" />
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
 
         {/* Popular Categories Grid */}
-        <div className="w-full max-w-4xl flex flex-col gap-4">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Popular categories</span>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3.5">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="w-full max-w-4xl flex flex-col gap-4 z-10 relative"
+        >
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md px-3 py-1 rounded-full self-center">Popular categories</span>
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-3 md:grid-cols-6 gap-3.5"
+          >
             {categories.map((c) => (
-              <GlassCard 
-                key={c.name}
-                className="p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer border-slate-100/40 dark:border-slate-800/20"
-                onClick={() => navigate(`/login?category=${c.name}`)}
-              >
-                <span className="text-2xl">{c.emoji}</span>
-                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">{c.name}</span>
-                <span className="text-[8px] text-slate-400">{c.count}</span>
-              </GlassCard>
+              <motion.div key={c.name} variants={fadeInUp}>
+                <GlassCard 
+                  className="p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:border-indigo-300/50 dark:hover:border-indigo-700/50"
+                  onClick={() => navigate(`/login?category=${c.name}`)}
+                  tilt={true}
+                >
+                  <span className="text-2xl drop-shadow-md">{c.emoji}</span>
+                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">{c.name}</span>
+                  <span className="text-[8px] text-slate-500 font-medium">{c.count}</span>
+                </GlassCard>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Stats Grid */}
-        <div className="mt-28 grid grid-cols-2 md:grid-cols-4 gap-8 w-full border-t border-slate-200/30 dark:border-slate-800/30 pt-12">
+        <div className="mt-28 grid grid-cols-2 md:grid-cols-4 gap-8 w-full border-t border-slate-200/50 dark:border-slate-800/50 pt-12 relative">
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
           {stats.map((s, i) => (
-            <div key={s.label} className="flex flex-col items-center animate-fade-in-up" style={{ animationDelay: `${i * 100 + 400}ms` }}>
-              <span className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent">{s.value}</span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">{s.label}</span>
-            </div>
+            <motion.div 
+              key={s.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: i * 0.1 + 0.2 }}
+              className="flex flex-col items-center" 
+            >
+              <span className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm">{s.value}</span>
+              <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">{s.label}</span>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Product Highlight / Features */}
-      <section className="py-28 bg-white/30 dark:bg-slate-900/10 border-y border-slate-200/20 dark:border-slate-800/20 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
+      <section className="py-28 relative z-10">
+        <div className="absolute inset-0 bg-white/20 dark:bg-slate-950/40 backdrop-blur-3xl border-y border-white/40 dark:border-slate-800/50" />
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-2xl mx-auto mb-16"
+          >
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Built to Connect Your Neighborhood
             </h2>
-            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="mt-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
               Not just an item sharing website—Nearby HelpUp is a complete operating ecosystem for communities, events, and resources.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid md:grid-cols-3 gap-8"
+          >
             {features.map((f, i) => {
               const Icon = f.icon;
               return (
-                <GlassCard 
-                  key={i} 
-                  className="p-8 flex flex-col gap-5 border-white/50 dark:border-slate-800/30 hover:-translate-y-2"
-                  glow={true}
-                >
-                  <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${f.color} shadow-sm`}>
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white font-sans">{f.title}</h3>
-                    <p className="mt-3 text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed">{f.desc}</p>
-                  </div>
-                </GlassCard>
+                <motion.div key={i} variants={fadeInUp}>
+                  <GlassCard 
+                    className="p-8 flex flex-col gap-6 hover:shadow-2xl hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/5 border-white/60 dark:border-slate-700/50"
+                    glow={true}
+                    tilt={true}
+                  >
+                    <div className={`h-14 w-14 rounded-2xl flex items-center justify-center ${f.color} shadow-inner backdrop-blur-md`}>
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white font-sans">{f.title}</h3>
+                      <p className="mt-3 text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{f.desc}</p>
+                    </div>
+                  </GlassCard>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
