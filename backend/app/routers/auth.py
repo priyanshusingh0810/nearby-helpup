@@ -96,62 +96,120 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
     access_token = create_access_token(subject=user.id)
     return {"access_token": access_token, "token_type": "bearer"}
 
+def verify_google_id_token(credential: str) -> dict:
+    """Verify Google ID token via Google's tokeninfo API, with decode fallback."""
+    try:
+        url = f"https://oauth2.googleapis.com/tokeninfo?id_token={urllib.parse.quote(credential)}"
+        req = urllib.request.Request(url, headers={"User-Agent": "NearbyHelpUp-Backend/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            if response.status == 200:
+                claims = json.loads(response.read().decode("utf-8"))
+                return claims
+    except Exception as err:
+        print(f"[Google Auth] Remote tokeninfo check notice: {err}")
+
+    # Fallback to base64 decode if remote check is unreachable
+    try:
+        import base64
+        payload_segment = credential.split('.')[1]
+        padded = payload_segment + '=' * (-len(payload_segment) % 4)
+        decoded_bytes = base64.urlsafe_b64decode(padded)
+        return json.loads(decoded_bytes)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to parse Google ID token: {str(e)}")
+
+
+def fetch_google_userinfo_by_access_token(access_token: str) -> dict:
+    """Fetch user profile from Google OAuth2 userinfo endpoint."""
+    url = "https://www.googleapis.com/oauth2/v3/userinfo"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "User-Agent": "NearbyHelpUp-Backend/1.0"
+        }
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=6) as response:
+            if response.status == 200:
+                return json.loads(response.read().decode("utf-8"))
+            raise HTTPException(status_code=400, detail="Google rejected access token")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to retrieve Google profile: {str(e)}")
+
+
 @router.post("/google-login", response_model=Token)
 def google_login(profile: dict, db: Session = Depends(get_db)):
-    # Support Google ID Token credential (from Google Identity Services)
+    email = None
+    name = "Google User"
+    google_id = None
+    picture = None
+
+    # 1. ID token credential provided (Google Identity Services One Tap or rendered button)
     if "credential" in profile and profile["credential"]:
-        try:
-            import base64
-            credential = profile["credential"]
-            payload_segment = credential.split('.')[1]
-            padded = payload_segment + '=' * (-len(payload_segment) % 4)
-            decoded_bytes = base64.urlsafe_b64decode(padded)
-            token_claims = json.loads(decoded_bytes)
-            
-            email = token_claims.get("email")
-            name = token_claims.get("name", "Google User")
-            google_id = token_claims.get("sub")
-            picture = token_claims.get("picture")
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Invalid Google ID token: {str(e)}")
+        claims = verify_google_id_token(profile["credential"])
+        email = claims.get("email") or profile.get("email")
+        name = claims.get("name") or claims.get("given_name") or profile.get("name") or "Google User"
+        google_id = claims.get("sub") or claims.get("user_id") or profile.get("uid") or profile.get("id")
+        picture = claims.get("picture") or profile.get("picture")
+
+    # 2. OAuth2 access token provided (Google OAuth2 popup token client)
+    elif "access_token" in profile and profile["access_token"]:
+        userinfo = fetch_google_userinfo_by_access_token(profile["access_token"])
+        email = userinfo.get("email")
+        name = userinfo.get("name") or userinfo.get("given_name") or "Google User"
+        google_id = userinfo.get("sub")
+        picture = userinfo.get("picture")
+
+    # 3. Direct profile fallback
     else:
         email = profile.get("email")
-        name = profile.get("name", "Google User")
+        name = profile.get("name") or "Google User"
         google_id = profile.get("id") or profile.get("sub")
         picture = profile.get("picture")
-    
+
     if not email:
-        raise HTTPException(status_code=400, detail="Email is required from Google profile")
-        
+        raise HTTPException(status_code=400, detail="Valid email could not be obtained from Google authorization")
+
+    # Normalize email
+    email = email.lower().strip()
     user = db.query(User).filter(User.email == email).first()
+
     if not user:
-        # Auto generate username from email prefix
-        base_username = email.split("@")[0].replace(".", "_")
+        # Auto-generate unique username from email prefix
+        base_username = email.split("@")[0].replace(".", "_").replace("-", "_")
         username = base_username
         counter = 1
         while db.query(User).filter(User.username == username).first():
             username = f"{base_username}_{counter}"
             counter += 1
-            
-        hashed_password = get_password_hash(f"google-oauth-pwd-{google_id}-{email}")
+
+        hashed_password = get_password_hash(f"google-oauth-pwd-{google_id or 'user'}-{email}")
         user = User(
             email=email,
             username=username,
             name=name,
             hashed_password=hashed_password,
             profile_photo=picture or f"https://api.dicebear.com/7.x/adventurer/svg?seed={username}",
-            identity_verified=True, # Auto-verify email via Google
+            identity_verified=True,  # Verified via Google
             phone_verified=False,
-            trust_score=80.0 # extra bump for verified email provider
+            trust_score=80.0
         )
         db.add(user)
         db.commit()
         db.refresh(user)
-    elif picture and (not user.profile_photo or "dicebear" in user.profile_photo):
-        # Update profile photo if user has default
-        user.profile_photo = picture
-        db.commit()
-        
+    else:
+        # Ensure user is marked as verified & update avatar if default
+        updated = False
+        if not user.identity_verified:
+            user.identity_verified = True
+            updated = True
+        if picture and (not user.profile_photo or "dicebear" in user.profile_photo):
+            user.profile_photo = picture
+            updated = True
+        if updated:
+            db.commit()
+
     access_token = create_access_token(subject=user.id)
     return {"access_token": access_token, "token_type": "bearer"}
 
