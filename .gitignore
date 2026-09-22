@@ -8,8 +8,8 @@
 *.suo
 *.user
 *.userosscache
-*.sln.docstates
 *.env
+!frontend/.env.production
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

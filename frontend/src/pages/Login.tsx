@@ -157,14 +157,55 @@ export const Login: React.FC = () => {
     }
   };
 
+  // Google OAuth configuration
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
+  const [customGoogleName, setCustomGoogleName] = useState('');
+
+  // Initialize Google Identity Services (GIS) if client ID is configured
+  useEffect(() => {
+    if (googleClientId && (window as any).google?.accounts?.id) {
+      try {
+        (window as any).google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: async (response: any) => {
+            if (response.credential) {
+              setLoading(true);
+              setError('');
+              try {
+                await googleSignIn({ credential: response.credential });
+                navigate('/home');
+              } catch (err: any) {
+                setError(err.message || 'Google authentication failed');
+                setLoading(false);
+              }
+            }
+          },
+        });
+        const btnContainer = document.getElementById('googleSignInOfficialBtn');
+        if (btnContainer) {
+          (window as any).google.accounts.id.renderButton(btnContainer, {
+            theme: 'filled_blue',
+            size: 'large',
+            width: '100%',
+            shape: 'rectangular',
+          });
+        }
+      } catch (e) {
+        console.error('Google One Tap init failed', e);
+      }
+    }
+  }, [googleClientId]);
+
   // Google Sign-In Chooser accounts list
   const googleAccounts = [
     { name: 'Priyanshu Sharma', email: 'priyanshu@helpup.com', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=priyanshu' },
+    { name: 'Anuj Tiwari', email: 'anujtiwari1427@gmail.com', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=anuj' },
     { name: 'System Administrator', email: 'admin@helpup.com', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=admin' },
-    { name: 'Alice Jenkins', email: 'alice@helpup.com', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=alice' },
   ];
 
-  const handleSelectGoogleAccount = async (account: any) => {
+  const handleSelectGoogleAccount = async (account: { name: string; email: string; photo?: string }) => {
+    if (!account.email) return;
     setShowGoogleModal(false);
     setError('');
     setLoading(true);
@@ -172,14 +213,26 @@ export const Login: React.FC = () => {
       await googleSignIn({
         id: `google-${account.email.split('@')[0]}`,
         email: account.email,
-        name: account.name,
-        picture: account.photo,
+        name: account.name || account.email.split('@')[0],
+        picture: account.photo || `https://api.dicebear.com/7.x/adventurer/svg?seed=${account.email.split('@')[0]}`,
       });
       navigate('/home');
     } catch (err: any) {
       setError(err.message || 'Google Sign-In failed');
       setLoading(false);
     }
+  };
+
+  const handleCustomGoogleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customGoogleEmail || !customGoogleEmail.includes('@')) {
+      setError('Please enter a valid Google email address.');
+      return;
+    }
+    handleSelectGoogleAccount({
+      email: customGoogleEmail,
+      name: customGoogleName || customGoogleEmail.split('@')[0],
+    });
   };
 
   // Shared input class with gradient focus ring
@@ -413,30 +466,34 @@ export const Login: React.FC = () => {
             <span className="relative bg-white px-3 text-[10px] font-bold text-slate-450 dark:bg-slate-900 uppercase">Or continue with</span>
           </div>
 
-          <button
-            onClick={() => setShowGoogleModal(true)}
-            className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200/60 bg-white/80 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300/60 hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-950/80 dark:text-slate-350 dark:hover:bg-slate-900 transition-all duration-300"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z"
-              />
-            </svg>
-            <span>Google Accounts</span>
-          </button>
+          {googleClientId ? (
+            <div id="googleSignInOfficialBtn" className="w-full flex justify-center min-h-[44px]"></div>
+          ) : (
+            <button
+              onClick={() => setShowGoogleModal(true)}
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200/60 bg-white/80 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300/60 hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-950/80 dark:text-slate-350 dark:hover:bg-slate-900 transition-all duration-300"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z"
+                />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+          )}
         </GlassCard>
 
         {/* Navigation bottom link */}
@@ -457,19 +514,50 @@ export const Login: React.FC = () => {
 
       {/* --- GOOGLE ACCOUNTS POPUP SELECTOR MODAL (Frosted Glass) --- */}
       {showGoogleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 p-6 rounded-3xl max-w-sm w-full text-center shadow-2xl flex flex-col gap-5 gradient-border animate-scale-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-fade-in">
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 p-6 rounded-3xl max-w-md w-full text-center shadow-2xl flex flex-col gap-4 gradient-border animate-scale-in">
             <div>
               <div className="flex justify-center mb-2">
-                <svg className="h-7 w-7" viewBox="0 0 24 24">
+                <svg className="h-8 w-8" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z" />
                   <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z" />
                   <path fill="#FBBC05" d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z" />
                   <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z" />
                 </svg>
               </div>
-              <h3 className="text-sm font-extrabold text-slate-850 dark:text-white">Choose a Google Account</h3>
-              <p className="text-[10px] text-slate-450 dark:text-slate-400 mt-1">to continue to Nearby HelpUp auth portal</p>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white">Sign In with Google</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Authenticate instantly to your Nearby HelpUp account</p>
+            </div>
+
+            {/* Custom Google Email Entry */}
+            <form onSubmit={handleCustomGoogleSubmit} className="flex flex-col gap-2.5 bg-slate-50/80 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 text-left">
+              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Enter Any Google Email</span>
+              <input
+                type="email"
+                placeholder="yourname@gmail.com"
+                value={customGoogleEmail}
+                onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                className="h-9 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
+              />
+              <input
+                type="text"
+                placeholder="Your Full Name (optional)"
+                value={customGoogleName}
+                onChange={(e) => setCustomGoogleName(e.target.value)}
+                className="h-9 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
+              />
+              <button
+                type="submit"
+                className="h-9 w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md shadow-indigo-500/20"
+              >
+                <span>Continue with this Account</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </form>
+
+            <div className="relative flex items-center justify-center my-1">
+              <span className="absolute h-[1px] w-full bg-slate-200 dark:bg-slate-800"></span>
+              <span className="relative bg-white dark:bg-slate-900 px-2 text-[10px] font-bold text-slate-400 uppercase">Or select quick account</span>
             </div>
             
             <div className="flex flex-col gap-2">
@@ -477,12 +565,12 @@ export const Login: React.FC = () => {
                 <button
                   key={account.email}
                   onClick={() => handleSelectGoogleAccount(account)}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-slate-100/60 hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/30 hover:border-indigo-200/40 dark:border-slate-800/60 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/20 dark:hover:border-indigo-800/30 transition-all duration-300 text-left group"
+                  className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100/60 hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/30 hover:border-indigo-200/40 dark:border-slate-800/60 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/20 dark:hover:border-indigo-800/30 transition-all duration-300 text-left group"
                 >
-                  <img src={account.photo} alt={account.name} className="h-9 w-9 rounded-full object-cover bg-slate-50 group-hover:shadow-md group-hover:shadow-indigo-500/10 transition-shadow" />
+                  <img src={account.photo} alt={account.name} className="h-8 w-8 rounded-full object-cover bg-slate-50 group-hover:shadow-md transition-shadow" />
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs font-bold text-slate-850 dark:text-white truncate">{account.name}</span>
-                    <span className="text-[9px] text-slate-400 truncate">{account.email}</span>
+                    <span className="text-[10px] text-slate-400 truncate">{account.email}</span>
                   </div>
                   <ArrowRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-indigo-500 ml-auto shrink-0 transition-colors" />
                 </button>
@@ -491,9 +579,9 @@ export const Login: React.FC = () => {
 
             <button
               onClick={() => setShowGoogleModal(false)}
-              className="text-[10px] font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-2 transition-colors"
+              className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-1 transition-colors"
             >
-              Cancel Sign In
+              Cancel
             </button>
           </div>
         </div>

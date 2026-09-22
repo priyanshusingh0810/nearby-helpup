@@ -1,4 +1,18 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if (port === '5173' || port === '3000' || host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:8000/api/v1';
+    }
+  }
+  return 'https://nearby-helpup-backend-pq3w.onrender.com/api/v1';
+};
+
+const BASE_URL = getApiBaseUrl();
 
 async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
@@ -48,8 +62,14 @@ export const api = {
         body: formData,
       });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || 'Login failed');
+        let errorDetail = `Login failed (${res.status})`;
+        try {
+          const err = await res.json();
+          errorDetail = err.detail || errorDetail;
+        } catch (e) {
+          // response body was not valid JSON
+        }
+        throw new Error(errorDetail);
       }
       return res.json();
     },
@@ -156,8 +176,21 @@ export const api = {
     },
     getWebSocketUrl(chatId: number): string {
       const token = localStorage.getItem('token') || '';
+      if (import.meta.env.VITE_WS_URL) {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        return `${wsProtocol}//${import.meta.env.VITE_WS_URL}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
+      }
+      if (import.meta.env.VITE_API_URL) {
+        try {
+          const url = new URL(import.meta.env.VITE_API_URL);
+          const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+          return `${wsProtocol}//${url.host}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
+        } catch (e) {
+          // fallback to default
+        }
+      }
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsHost = import.meta.env.VITE_WS_URL || 'localhost:8000';
+      const wsHost = (typeof window !== 'undefined' && window.location.port === '5173' ? 'localhost:8000' : window.location.host);
       return `${wsProtocol}//${wsHost}/api/v1/chats/ws/${chatId}?token=${encodeURIComponent(token)}`;
     }
   },
