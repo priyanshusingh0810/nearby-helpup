@@ -15,7 +15,7 @@ import {
   Users,
   Calendar,
   Sparkles,
-  Zap,
+  Heart,
   ChevronRight,
   ShieldCheck
 } from 'lucide-react';
@@ -28,8 +28,7 @@ export const Sidebar: React.FC = () => {
   const location = useLocation();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const currentPlan = localStorage.getItem('helpup_plan_tier') || 'Free Neighbor';
-  const isPro = currentPlan.includes('Pro');
+  const currentRole = localStorage.getItem('helpup_community_role') || 'Community Neighbor';
 
   const mainMenuItems = [
     { name: 'Dashboard', path: '/home', icon: Home },
@@ -192,34 +191,31 @@ export const Sidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer Area: SaaS Quota Card & User Profile */}
+        {/* Footer Area: Community Standing Card & User Profile */}
         <div className="flex flex-col gap-3 pt-4 border-t border-slate-200/70 dark:border-slate-800/70">
-          {/* SaaS Quota / Plan Card */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/50 dark:from-slate-900 dark:via-indigo-950/20 dark:to-slate-900 border border-indigo-100 dark:border-slate-800 flex flex-col gap-2.5 shadow-sm">
+          {/* Non-Profit Community Standing Card */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 dark:from-slate-900 dark:via-emerald-950/20 dark:to-slate-900 border border-emerald-100 dark:border-slate-800 flex flex-col gap-2.5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                <span>{currentPlan}</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <Heart className="h-3 w-3 text-emerald-500 fill-emerald-500/20" />
+                <span>100% Non-Profit</span>
               </span>
-              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                {isPro ? 'Unlimited' : '8/10 Borrows'}
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-md">
+                Open Mesh
               </span>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-              <div 
-                className="bg-indigo-600 h-full rounded-full transition-all duration-500"
-                style={{ width: isPro ? '100%' : '80%' }}
-              />
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+              <span className="font-semibold text-[11px] truncate">{currentRole}</span>
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Civic Good</span>
             </div>
 
             <button
               type="button"
               onClick={() => setShowUpgradeModal(true)}
-              className="mt-0.5 w-full py-1.5 px-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-600/25"
+              className="mt-0.5 w-full py-1.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/25"
             >
-              <span>{isPro ? 'Manage Membership' : 'Upgrade to Pro'}</span>
+              <span>Community Charter</span>
               <ChevronRight className="h-3 w-3" />
             </button>
           </div>

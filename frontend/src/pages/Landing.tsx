@@ -127,9 +127,9 @@ export const Landing: React.FC = () => {
 
   const faqs = [
     {
-      q: 'Is Nearby HelpUp free to use for individual neighbors?',
-      category: 'Pricing',
-      a: 'Yes! The core platform is completely free forever. You can borrow, lend, swap skills, join local community circles, and respond to neighborhood emergencies without any subscription fees.'
+      q: 'Is Nearby HelpUp really 100% free and non-profit?',
+      category: 'Civic Charter',
+      a: 'Yes! Nearby HelpUp operates as a public-good community mesh. There are zero subscriptions, zero hidden fees, and zero paywalls. You can borrow, lend, swap skills, join local community circles, and respond to neighborhood emergencies completely free of charge.'
     },
     {
       q: 'How does the platform protect my privacy and physical address?',
@@ -142,9 +142,9 @@ export const Landing: React.FC = () => {
       a: 'Every authenticated neighbor starts with a base Trust Score of 75. Completing government ID verification, phone verification, punctually returning borrowed items, and receiving positive peer reviews increase your score up to 100.'
     },
     {
-      q: 'Can gated communities, apartment societies, or campuses use HelpUp?',
-      category: 'Enterprise',
-      a: 'Absolutely! Our HOA & Campus Circle tier allows resident welfare associations, universities, and co-living spaces to launch a dedicated, closed community mesh with automated resident roster verification and asset check-out management.'
+      q: 'Can gated societies, RWAs, or university campuses use HelpUp?',
+      category: 'Community Chapters',
+      a: 'Absolutely! Our Campus & Colony Chapter charter allows resident welfare associations, universities, and co-living societies to launch a dedicated, verified community mesh with automated resident verification and asset check-out management at no cost.'
     }
   ];
 
@@ -193,7 +193,7 @@ export const Landing: React.FC = () => {
             <a href="#live-demo" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Live Demo</a>
             <a href="#comparison" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Why HelpUp</a>
             <a href="#calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ROI Calculator</a>
-            <a href="#pricing" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</a>
+            <a href="#charter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Community Charter</a>
             <a href="#faqs" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">FAQs</a>
           </nav>
 
@@ -684,34 +684,34 @@ export const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* SaaS Pricing Section */}
-      <section id="pricing" className="py-20 px-6 max-w-6xl mx-auto z-10 relative">
+      {/* 100% Non-Profit Community Charter & Roles Section */}
+      <section id="charter" className="py-20 px-6 max-w-6xl mx-auto z-10 relative">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="saas-badge mb-3">Community First Plans</span>
+          <span className="saas-badge mb-3">100% Non-Profit · Public Good</span>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Transparent, Accessible Membership
+            Community Roles & Open Charter
           </h2>
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-            Free forever for everyday neighbors. Upgrade for citywide extended mesh, priority emergency alerts, or dedicated HOA community deployments.
+            Nearby HelpUp is free public-good software. There are no fees, subscriptions, or paywalls. All community privileges and badges are earned through trust, mutual aid, and active volunteering.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Starter Plan */}
+          {/* Role 1: Community Neighbor */}
           <div className="saas-card rounded-3xl p-7 flex flex-col justify-between">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                Core Free
+                100% Free Forever
               </span>
               <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white font-sans">
-                Free Neighbor
+                Community Neighbor
               </h3>
               <p className="mt-2 text-xs text-slate-500 leading-relaxed min-h-[36px]">
-                Essential sharing for conscious individuals and local residents.
+                Essential sharing and mutual aid for everyday residents and conscious neighbors.
               </p>
-              <div className="mt-4 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">$0</span>
-                <span className="text-xs text-slate-400">/ forever free</span>
+              <div className="mt-4 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-baseline gap-1.5">
+                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Free Forever</span>
+                <span className="text-xs text-slate-400">· Non-profit</span>
               </div>
               <ul className="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                 <li className="flex items-center gap-2">
@@ -720,15 +720,15 @@ export const Landing: React.FC = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Up to 5 active borrows / month</span>
+                  <span>Unlimited item borrowing & listings</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Public neighborhood chats & clubs</span>
+                  <span>Public neighborhood chats & skill clubs</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Standard emergency broadcasting</span>
+                  <span>Standard 24/7 emergency broadcasts</span>
                 </li>
               </ul>
             </div>
@@ -736,48 +736,48 @@ export const Landing: React.FC = () => {
               onClick={() => navigate('/login')}
               className="mt-8 saas-btn-secondary w-full"
             >
-              Get Started Free
+              Join Neighborhood Free
             </button>
           </div>
 
-          {/* Pro Plan */}
-          <div className="relative rounded-3xl p-7 bg-gradient-to-b from-indigo-50/70 to-purple-50/40 dark:from-indigo-950/40 dark:to-slate-900 border-2 border-indigo-500 shadow-xl shadow-indigo-500/10 flex flex-col justify-between">
+          {/* Role 2: Verified Volunteer & First Responder */}
+          <div className="relative rounded-3xl p-7 bg-gradient-to-b from-indigo-50/70 to-emerald-50/40 dark:from-indigo-950/40 dark:to-slate-900 border-2 border-indigo-500 shadow-xl shadow-indigo-500/10 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-600 text-white">
-                  Most Popular · Free with 90+ Trust
+                  Earned by Trust & Help
                 </span>
               </div>
               <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white font-sans">
-                Pro Neighbor
+                Volunteer & First Responder
               </h3>
               <p className="mt-2 text-xs text-slate-500 leading-relaxed min-h-[36px]">
-                Supercharged power sharing with extended radius and priority safety beacon.
+                High-trust neighbors ready to help during urgent medical needs, power outages, and emergencies.
               </p>
-              <div className="mt-4 pb-4 border-b border-indigo-200/50 dark:border-indigo-800/50 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">$4.99</span>
-                <span className="text-xs text-slate-400">/ month</span>
+              <div className="mt-4 pb-4 border-b border-indigo-200/50 dark:border-indigo-800/50 flex items-baseline gap-1.5">
+                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Earned Status</span>
+                <span className="text-xs text-slate-400">· Trust score 85+</span>
               </div>
               <ul className="mt-5 space-y-2.5 text-xs text-slate-700 dark:text-slate-200 font-medium">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>25 km Extended City Mesh Radius</span>
+                  <span>25 km Extended Citywide Mesh Beacon</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Unlimited monthly borrows & listings</span>
+                  <span>Priority Emergency Alert Dispatch (SMS & Pin)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Zero-Deposit Escrow Privilege</span>
+                  <span>Zero-Deposit Trust Guarantee Privilege</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Priority Emergency Beacon with SMS</span>
+                  <span>Verified Volunteer Community Gold Badge</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Verified Pro Gold Community Badge</span>
+                  <span>Direct emergency responder coordination channel</span>
                 </li>
               </ul>
             </div>
@@ -785,35 +785,35 @@ export const Landing: React.FC = () => {
               onClick={() => setShowUpgradeModal(true)}
               className="mt-8 saas-btn-primary w-full shadow-lg shadow-indigo-600/30"
             >
-              <span>Upgrade to Pro</span>
+              <span>Pledge as Volunteer</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
 
-          {/* Enterprise HOA Plan */}
+          {/* Role 3: Colony & Campus Chapter */}
           <div className="saas-card rounded-3xl p-7 flex flex-col justify-between">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                Enterprise & Campus
+                Open Society Deployment
               </span>
               <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white font-sans">
-                HOA & Campus Circle
+                Colony & Campus Chapters
               </h3>
               <p className="mt-2 text-xs text-slate-500 leading-relaxed min-h-[36px]">
-                For residential societies, universities, gated communities, and HOAs.
+                For residential welfare associations (RWAs), university campuses, and local societies.
               </p>
-              <div className="mt-4 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">$49</span>
-                <span className="text-xs text-slate-400">/ society / mo</span>
+              <div className="mt-4 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-baseline gap-1.5">
+                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Free Open Setup</span>
+                <span className="text-xs text-slate-400">· Zero commercial cost</span>
               </div>
               <ul className="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Private Gated Community Domain</span>
+                  <span>Dedicated Private Colony or Campus Domain</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Resident roster synchronization & auto-ID</span>
+                  <span>Resident roster synchronization & auto-ID checks</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
@@ -821,7 +821,7 @@ export const Landing: React.FC = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Tool Shed & Shared Asset Kiosk</span>
+                  <span>Tool Shed & Shared Asset Inventory Kiosk</span>
                 </li>
               </ul>
             </div>
@@ -829,7 +829,7 @@ export const Landing: React.FC = () => {
               onClick={() => setShowUpgradeModal(true)}
               className="mt-8 saas-btn-secondary w-full"
             >
-              Deploy for Community
+              Register Community Chapter
             </button>
           </div>
         </div>
@@ -900,12 +900,12 @@ export const Landing: React.FC = () => {
           <div className="flex gap-6 text-[11px] font-bold text-slate-500 dark:text-slate-400">
             <a href="#platform" className="hover:text-indigo-600 transition-colors">Security Architecture</a>
             <a href="#calculator" className="hover:text-indigo-600 transition-colors">Impact Analytics</a>
-            <a href="#pricing" className="hover:text-indigo-600 transition-colors">Campus Deployment</a>
+            <a href="#charter" className="hover:text-indigo-600 transition-colors">Community Charter</a>
             <Link to="/login" className="hover:text-indigo-600 transition-colors">Privacy Shield</Link>
           </div>
 
           <p className="text-[10px] font-semibold text-slate-400">
-            &copy; {new Date().getFullYear()} Nearby HelpUp Inc. Empowering local resilience.
+            &copy; {new Date().getFullYear()} Nearby HelpUp Civic Mesh. A 100% Non-Profit Community Initiative.
           </p>
         </div>
       </footer>

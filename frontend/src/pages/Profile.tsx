@@ -19,7 +19,8 @@ import {
   Phone,
   Settings,
   Star,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { WeatherWidget } from '../components/widgets/WeatherWidget';
@@ -314,19 +315,15 @@ export const Profile: React.FC = () => {
                 </span>
               )}
 
-              {/* SaaS Plan Badge */}
+              {/* Non-Profit Community Role Badge */}
               <button
                 type="button"
                 onClick={() => setShowSaaSModal(true)}
-                className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold flex items-center gap-1 shadow-sm transition-transform hover:scale-105 border ${
-                  (localStorage.getItem('helpup_plan_tier') || 'Free Neighbor').includes('Pro')
-                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
-                    : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-indigo-200/50 dark:border-indigo-800/50'
-                }`}
-                title="Manage Membership Plan"
+                className="rounded-full px-2.5 py-0.5 text-[9px] font-bold flex items-center gap-1 shadow-sm transition-transform hover:scale-105 border bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-800/50"
+                title="View Community Charter & Role"
               >
-                <Sparkles className="h-3 w-3" />
-                <span>{localStorage.getItem('helpup_plan_tier') || 'Free Neighbor'}</span>
+                <Heart className="h-3 w-3 fill-emerald-500/20 text-emerald-500" />
+                <span>{localStorage.getItem('helpup_community_role') || 'Community Neighbor'}</span>
               </button>
             </div>
             <p className="text-xs text-slate-455">@{profileUser.username}</p>

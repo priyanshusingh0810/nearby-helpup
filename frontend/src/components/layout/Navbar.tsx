@@ -14,7 +14,8 @@ import {
   HelpCircle,
   ChevronDown,
   Command,
-  CheckCheck
+  CheckCheck,
+  Heart
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -39,8 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearch, onMobileMenuToggle }) 
 
   const [notifications, setNotifications] = useState<any[]>([]);
 
-  const currentPlan = localStorage.getItem('helpup_plan_tier') || 'Free Neighbor';
-  const isPro = currentPlan.includes('Pro');
+  const currentRole = localStorage.getItem('helpup_community_role') || 'Community Neighbor';
 
   const fetchNotifications = async () => {
     try {
@@ -210,18 +210,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearch, onMobileMenuToggle }) 
 
         {/* Right: Actions, Location Beacon, Plan Badge, Notifications */}
         <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* SaaS Membership Badge Button */}
+          {/* Non-Profit Community Charter Badge Button */}
           <button
             type="button"
             onClick={() => setShowUpgradeModal(true)}
-            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 ${
-              isPro
-                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20'
-                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 hover:bg-indigo-100/60'
-            }`}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 hover:bg-emerald-100/60 transition-all duration-200 shadow-sm"
           >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>{isPro ? 'Pro Member' : 'Free Plan'}</span>
+            <Heart className="h-3.5 w-3.5 text-emerald-500 fill-emerald-500/20" />
+            <span>100% Non-Profit</span>
           </button>
 
           {/* Location Radius Beacon */}
