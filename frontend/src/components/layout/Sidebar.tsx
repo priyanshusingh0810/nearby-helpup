@@ -17,7 +17,9 @@ import {
   Sparkles,
   Heart,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Scale,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SaaSUpgradeModal } from '../common/SaaSUpgradeModal';
@@ -40,6 +42,7 @@ export const Sidebar: React.FC = () => {
   const collabMenuItems = [
     { name: 'Chat Room', path: '/chat', icon: MessageSquare },
     { name: 'My Profile', path: `/profile/${user?.id || ''}`, icon: UserIcon },
+    { name: 'Terms & Conditions', path: '/terms', icon: Scale },
   ];
 
   const isAdmin = user?.username?.toLowerCase() === 'admin' || user?.id === 1;

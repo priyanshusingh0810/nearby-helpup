@@ -20,6 +20,8 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { Communities } from './pages/Communities';
 import { CommunityDetail } from './pages/CommunityDetail';
 import { Events } from './pages/Events';
+import { TermsAndConditions } from './pages/TermsAndConditions';
+import { AppFooter } from './components/layout/AppFooter';
 
 // Route Lock helper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,8 +48,8 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Landing & Login pages do not display default dashboard frame
-  const isPlainPage = location.pathname === '/' || location.pathname === '/login';
+  // Landing, Login & Terms pages do not display default dashboard frame
+  const isPlainPage = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/terms' || location.pathname === '/terms-and-conditions';
 
   if (isPlainPage || !user) {
     return <>{children}</>;
@@ -81,6 +83,7 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <a href="/emergency" className="p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 text-rose-500">Emergency Board</a>
                 <a href="/chat" className="p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900">Chat Room</a>
                 <a href={`/profile/${user.id}`} className="p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900">My Profile</a>
+                <a href="/terms" className="p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 text-indigo-600 dark:text-indigo-400">Terms & Conditions</a>
               </div>
             </div>
           </div>
@@ -91,7 +94,11 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <div className="flex-1 flex flex-col md:pl-64 min-w-0">
         <Navbar onMobileMenuToggle={() => setMobileMenuOpen(true)} />
         <main className="flex-1 flex flex-col overflow-y-auto">
-          {children}
+          <div className="flex-1">
+            {children}
+          </div>
+          {/* Interactive Pages Footer */}
+          {location.pathname !== '/chat' && <AppFooter />}
         </main>
       </div>
 
@@ -168,6 +175,9 @@ export const AppContent: React.FC = () => {
               <AdminDashboard />
             </ProtectedRoute>
           } />
+
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

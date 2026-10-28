@@ -897,10 +897,11 @@ export const Landing: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex gap-6 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+          <div className="flex flex-wrap gap-4 sm:gap-6 text-[11px] font-bold text-slate-500 dark:text-slate-400">
             <a href="#platform" className="hover:text-indigo-600 transition-colors">Security Architecture</a>
             <a href="#calculator" className="hover:text-indigo-600 transition-colors">Impact Analytics</a>
             <a href="#charter" className="hover:text-indigo-600 transition-colors">Community Charter</a>
+            <Link to="/terms" className="hover:text-indigo-600 transition-colors text-indigo-600 dark:text-indigo-400 font-bold underline decoration-indigo-300 dark:decoration-indigo-700 underline-offset-4">Terms & Conditions</Link>
             <Link to="/login" className="hover:text-indigo-600 transition-colors">Privacy Shield</Link>
           </div>
 

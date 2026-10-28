@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   Lock, 
@@ -689,6 +689,13 @@ export const Login: React.FC = () => {
             {isSignUp ? 'Sign In' : 'Sign Up'}
           </button>
         </p>
+
+        <div className="mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-800/60 text-center text-[11px] text-slate-400">
+          By signing in or registering, you agree to our{' '}
+          <Link to="/terms" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+            Terms & Conditions
+          </Link>.
+        </div>
       </div>
 
       {/* --- GOOGLE ACCOUNT CHOOSER & AUTHORIZATION MODAL --- */}
