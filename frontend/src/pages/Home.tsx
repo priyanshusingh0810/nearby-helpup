@@ -267,7 +267,7 @@ export const Home: React.FC = () => {
   
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
   };
 
   const [viewMode, setViewMode] = useState<'grid' | 'table' | 'map'>('grid');
@@ -497,7 +497,7 @@ export const Home: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Emergency Broadcast Feed */}
       {activeEmergencies.length > 0 && (
@@ -542,7 +542,7 @@ export const Home: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Interactive Neighborhood Map Node preview */}
@@ -809,7 +809,7 @@ export const Home: React.FC = () => {
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Dashboard Feed Grid */}
       <motion.div variants={fadeInUp} className="grid lg:grid-cols-3 gap-6 md:gap-8 items-start">
@@ -1013,7 +1013,8 @@ export const Home: React.FC = () => {
                 </motion.div>
               ))}
             </motion.div>
-          ) : (
+          )
+        ) : (
             <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl dark:border-slate-800 bg-white/30">
               <span className="text-3xl">📭</span>
               <h3 className="font-bold text-sm mt-3">No matching listings found</h3>
@@ -1143,7 +1144,7 @@ export const Home: React.FC = () => {
 
         </div>
 
-      </div>
+      </motion.div>
 
     </motion.div>
   );

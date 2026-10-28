@@ -433,19 +433,19 @@ input[type="range"]::-moz-range-thumb {
    ENTERPRISE SAAS UTILITIES & COMPONENTS
    ============================================ */
 
-@utility saas-card {
+.saas-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@utility saas-card:hover {
+.saas-card:hover {
   box-shadow: var(--card-shadow-hover);
   border-color: rgba(99, 102, 241, 0.25);
 }
 
-@utility saas-stat-card {
+.saas-stat-card {
   position: relative;
   overflow: hidden;
   background: var(--bg-secondary);
@@ -456,12 +456,12 @@ input[type="range"]::-moz-range-thumb {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@utility saas-stat-card:hover {
+.saas-stat-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--card-shadow-hover);
 }
 
-@utility saas-badge {
+.saas-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -475,13 +475,13 @@ input[type="range"]::-moz-range-thumb {
   color: #4f46e5;
 }
 
-.dark @utility saas-badge {
+.dark .saas-badge {
   color: #a5b4fc;
   background: rgba(99, 102, 241, 0.15);
   border-color: rgba(99, 102, 241, 0.3);
 }
 
-@utility saas-badge-pro {
+.saas-badge-pro {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -496,13 +496,13 @@ input[type="range"]::-moz-range-thumb {
   color: #d97706;
 }
 
-.dark @utility saas-badge-pro {
+.dark .saas-badge-pro {
   color: #fbbf24;
   border-color: rgba(245, 158, 11, 0.4);
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1));
 }
 
-@utility saas-kbd {
+.saas-kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -517,7 +517,7 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
 
-@utility saas-btn-primary {
+.saas-btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -533,13 +533,13 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid rgba(79, 70, 229, 0.5);
 }
 
-@utility saas-btn-primary:hover {
+.saas-btn-primary:hover {
   background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 6px 20px -2px rgba(79, 70, 229, 0.5);
   transform: translateY(-1px);
 }
 
-@utility saas-btn-secondary {
+.saas-btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -555,7 +555,7 @@ input[type="range"]::-moz-range-thumb {
   transition: all 0.2s ease;
 }
 
-@utility saas-btn-secondary:hover {
+.saas-btn-secondary:hover {
   background: var(--bg-tertiary);
   border-color: rgba(99, 102, 241, 0.3);
   transform: translateY(-1px);
@@ -566,6 +566,6 @@ input[type="range"]::-moz-range-thumb {
   100% { transform: scale(2.6); opacity: 0; }
 }
 
-@utility saas-radar {
+.saas-radar {
   animation: radar-pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }

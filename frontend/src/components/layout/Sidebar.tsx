@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, x: -15 },
-    show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 350, damping: 24 } }
+    show: { opacity: 1, x: 0, transition: { type: "spring" as const, stiffness: 350, damping: 24 } }
   };
 
   return (
