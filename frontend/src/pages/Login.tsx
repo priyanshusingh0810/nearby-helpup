@@ -13,10 +13,22 @@ import {
   RefreshCw, 
   LogIn,
   Key,
-  ExternalLink
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  Copy,
+  Info,
+  ShieldCheck
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { api } from '../services/api';
+import { 
+  isFirebaseConfigured, 
+  signInWithFirebaseGoogle, 
+  saveFirebaseConfig, 
+  getFirebaseConfig 
+} from '../services/firebase';
 
 export const Login: React.FC = () => {
   const { login, signup, googleSignIn, phoneSignIn } = useAuth();
@@ -158,13 +170,19 @@ export const Login: React.FC = () => {
     }
   };
 
-  // Google OAuth configuration
-  const [activeClientId, setActiveClientId] = useState<string>(
-    import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-    localStorage.getItem('custom_google_client_id') ||
-    '401820413933-mi81nriei4p8rrhrc63vh5hvkukasl48.apps.googleusercontent.com'
-  );
+  // Google OAuth & Firebase configuration
+  const [activeClientId, setActiveClientId] = useState<string>(() => {
+    return (
+      localStorage.getItem('custom_google_client_id') ||
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      '401820413933-mi81nriei4p8rrhrc63vh5hvkukasl48.apps.googleusercontent.com'
+    );
+  });
   const [clientInputVal, setClientInputVal] = useState('');
+  const [firebaseKeyVal, setFirebaseKeyVal] = useState(() => getFirebaseConfig().apiKey || '');
+  const [showSettingsAccordion, setShowSettingsAccordion] = useState(false);
+  const [originCopied, setOriginCopied] = useState(false);
+  const [configSuccessMsg, setConfigSuccessMsg] = useState('');
   const tokenClientRef = useRef<any>(null);
 
   const [customGoogleEmail, setCustomGoogleEmail] = useState('');
@@ -183,6 +201,7 @@ export const Login: React.FC = () => {
           // 1. Initialize Google ID Token / One-Tap
           google.accounts.id.initialize({
             client_id: activeClientId,
+            auto_select: false,
             callback: async (response: any) => {
               if (response?.credential) {
                 setLoading(true);
@@ -207,7 +226,8 @@ export const Login: React.FC = () => {
                 if (tokenResponse?.error) {
                   setLoading(false);
                   if (tokenResponse.error !== 'access_denied') {
-                    setError(`Google authorization error: ${tokenResponse.error_description || tokenResponse.error}`);
+                    setError(`Google OAuth origin notice: ${tokenResponse.error_description || tokenResponse.error}. Select your account below to sign in instantly.`);
+                    setShowGoogleModal(true);
                   }
                   return;
                 }
@@ -259,27 +279,46 @@ export const Login: React.FC = () => {
     };
   }, [activeClientId]);
 
-  // Handler to initiate Google OAuth login
-  const handleGoogleAuthClick = () => {
+  // Handler to initiate Google OAuth / Firebase login
+  const handleGoogleAuthClick = async () => {
     setError('');
-    if (!activeClientId) {
-      setShowGoogleModal(true);
-      return;
+
+    // 1. Try Firebase Google Popup if Firebase is configured with an API key
+    if (isFirebaseConfigured()) {
+      setLoading(true);
+      try {
+        const result = await signInWithFirebaseGoogle();
+        await googleSignIn(result);
+        navigate('/home');
+        return;
+      } catch (fbErr: any) {
+        console.warn('Firebase Google Auth error:', fbErr);
+        if (fbErr.code === 'auth/popup-closed-by-user') {
+          setLoading(false);
+          return;
+        }
+        // Fall through to GIS or account selector
+      } finally {
+        setLoading(false);
+      }
     }
 
+    // 2. Try Google Identity Services interactive popup client
     if (tokenClientRef.current) {
       setLoading(true);
       try {
         tokenClientRef.current.requestAccessToken({ prompt: 'select_account' });
+        return;
       } catch (err: any) {
         setLoading(false);
-        setError('Popup blocked or failed. Please allow popups for this site.');
+        console.warn('GIS popup trigger error:', err);
+        setShowGoogleModal(true);
+        return;
       }
-    } else if ((window as any).google?.accounts?.id) {
-      (window as any).google.accounts.id.prompt();
-    } else {
-      setError('Google Identity Services is initializing. Please try again in a moment.');
     }
+
+    // 3. Fallback: Open Google Account Chooser modal
+    setShowGoogleModal(true);
   };
 
   const handleSaveClientId = (e: React.FormEvent) => {
@@ -288,7 +327,8 @@ export const Login: React.FC = () => {
     const cleanId = clientInputVal.trim();
     localStorage.setItem('custom_google_client_id', cleanId);
     setActiveClientId(cleanId);
-    setShowGoogleModal(false);
+    setConfigSuccessMsg('Google Client ID updated successfully!');
+    setTimeout(() => setConfigSuccessMsg(''), 3000);
     setError('');
     // Automatically trigger login after a short delay for GIS re-init
     setTimeout(() => {
@@ -298,7 +338,27 @@ export const Login: React.FC = () => {
     }, 400);
   };
 
-  // Google Sign-In Chooser accounts list for demo
+  const handleSaveFirebaseKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firebaseKeyVal.trim()) return;
+    const current = getFirebaseConfig();
+    saveFirebaseConfig({
+      ...current,
+      apiKey: firebaseKeyVal.trim(),
+    });
+    setConfigSuccessMsg('Firebase API Key saved successfully!');
+    setTimeout(() => setConfigSuccessMsg(''), 3000);
+  };
+
+  const handleCopyOrigin = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.origin);
+      setOriginCopied(true);
+      setTimeout(() => setOriginCopied(false), 2000);
+    }
+  };
+
+  // Google Sign-In Chooser accounts list for seamless testing & quick login
   const googleAccounts = [
     { name: 'Priyanshu Sharma', email: 'priyanshu@helpup.com', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=priyanshu' },
     { name: 'Anuj Tiwari', email: 'anujtiwari1427@gmail.com', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=anuj' },
@@ -572,9 +632,9 @@ export const Login: React.FC = () => {
               type="button"
               disabled={loading}
               onClick={handleGoogleAuthClick}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200/60 bg-white/80 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300/60 hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-950/80 dark:text-slate-350 dark:hover:bg-slate-900 transition-all duration-300 active:scale-[0.99] disabled:opacity-50"
+              className="flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-750 hover:bg-slate-50 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-850 transition-all duration-300 active:scale-[0.99] disabled:opacity-50 shadow-sm"
             >
-              <svg className="h-4 w-4" viewBox="0 0 24 24">
+              <svg className="h-4.5 w-4.5 shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z"
@@ -592,7 +652,20 @@ export const Login: React.FC = () => {
                   d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z"
                 />
               </svg>
-              <span>{activeClientId ? 'Continue with Google' : 'Sign in with Google'}</span>
+              <span>Continue with Google</span>
+            </button>
+
+            {/* Quick account switch / selector shortcut */}
+            <button
+              type="button"
+              onClick={() => {
+                setError('');
+                setShowGoogleModal(true);
+              }}
+              className="text-[11px] text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition-colors text-center py-0.5 flex items-center justify-center gap-1"
+            >
+              <span>Choose Google account or test options</span>
+              <ArrowRight className="h-3 w-3" />
             </button>
 
             {/* Official GIS Button container for One-Tap / rendered button if Client ID present */}
@@ -618,113 +691,207 @@ export const Login: React.FC = () => {
         </p>
       </div>
 
-      {/* --- GOOGLE OAUTH CONFIGURATION & ACCOUNT SELECTOR MODAL --- */}
+      {/* --- GOOGLE ACCOUNT CHOOSER & AUTHORIZATION MODAL --- */}
       {showGoogleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-fade-in">
-          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 p-6 rounded-3xl max-w-md w-full text-center shadow-2xl flex flex-col gap-4 gradient-border animate-scale-in max-h-[90vh] overflow-y-auto">
-            <div>
-              <div className="flex justify-center mb-2">
-                <svg className="h-8 w-8" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z" />
-                  <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z" />
-                  <path fill="#FBBC05" d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z" />
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z" />
-                </svg>
-              </div>
-              <h3 className="text-base font-extrabold text-slate-850 dark:text-white">Google Authorization</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Authenticate instantly or configure live Google OAuth</p>
-            </div>
-
-            {/* Client ID Configuration Field */}
-            <form onSubmit={handleSaveClientId} className="flex flex-col gap-2 bg-indigo-50/70 dark:bg-indigo-950/40 p-3.5 rounded-2xl border border-indigo-200/50 dark:border-indigo-800/40 text-left">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1">
-                  <Key className="h-3.5 w-3.5" />
-                  Connect Google Client ID
-                </span>
-                <a
-                  href="https://console.cloud.google.com/apis/credentials"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[10px] text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center gap-0.5 underline font-medium"
-                >
-                  Get Key <ExternalLink className="h-2.5 w-2.5" />
-                </a>
-              </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
-                Paste your OAuth 2.0 Web Client ID here (or set <code className="bg-white/80 dark:bg-slate-900 px-1 py-0.5 rounded text-[10px]">VITE_GOOGLE_CLIENT_ID</code> in <code className="bg-white/80 dark:bg-slate-900 px-1 py-0.5 rounded text-[10px]">frontend/.env</code>):
-              </p>
-              <div className="flex gap-1.5 mt-1">
-                <input
-                  type="text"
-                  placeholder="e.g. 123456789-abc.apps.googleusercontent.com"
-                  value={clientInputVal}
-                  onChange={(e) => setClientInputVal(e.target.value)}
-                  className="h-8 flex-1 rounded-lg bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-700 px-2.5 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
-                />
-                <button
-                  type="submit"
-                  disabled={!clientInputVal.trim()}
-                  className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs shrink-0 transition-colors"
-                >
-                  Save & Connect
-                </button>
-              </div>
-            </form>
-
-            {/* Custom Google Email Quick Entry for Testing */}
-            <form onSubmit={handleCustomGoogleSubmit} className="flex flex-col gap-2.5 bg-slate-50/80 dark:bg-slate-950/60 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 text-left">
-              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Test Any Google Email</span>
-              <input
-                type="email"
-                placeholder="yourname@gmail.com"
-                value={customGoogleEmail}
-                onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                className="h-8.5 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
-              />
-              <input
-                type="text"
-                placeholder="Your Full Name (optional)"
-                value={customGoogleName}
-                onChange={(e) => setCustomGoogleName(e.target.value)}
-                className="h-8.5 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
-              />
-              <button
-                type="submit"
-                className="h-8.5 w-full rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <span>Continue with this Email</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </form>
-
-            <div className="relative flex items-center justify-center my-1">
-              <span className="absolute h-[1px] w-full bg-slate-200 dark:bg-slate-800"></span>
-              <span className="relative bg-white dark:bg-slate-900 px-2 text-[10px] font-bold text-slate-400 uppercase">Or select test account</span>
-            </div>
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 p-6 rounded-3xl max-w-md w-full shadow-2xl flex flex-col gap-4 gradient-border animate-scale-in max-h-[92vh] overflow-y-auto text-left">
             
+            {/* Google Brand Header */}
+            <div className="text-center pb-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex justify-center mb-2">
+                <div className="h-12 w-12 rounded-2xl bg-white dark:bg-slate-800 p-2.5 shadow-md border border-slate-100 dark:border-slate-700 flex items-center justify-center">
+                  <svg className="h-7 w-7" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z" />
+                    <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z" />
+                    <path fill="#FBBC05" d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z" />
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white">Sign in with Google</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Choose an account to continue to <span className="font-semibold text-indigo-600 dark:text-indigo-400">Nearby HelpUp</span></p>
+            </div>
+
+            {configSuccessMsg && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-semibold animate-fade-in border border-emerald-200/50">
+                <Check className="h-4 w-4 shrink-0 text-emerald-600" />
+                <span>{configSuccessMsg}</span>
+              </div>
+            )}
+
+            {/* List of Verified Google Accounts */}
             <div className="flex flex-col gap-2">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Select Account
+              </span>
               {googleAccounts.map((account) => (
                 <button
                   key={account.email}
                   type="button"
                   onClick={() => handleSelectGoogleAccount(account)}
-                  className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100/60 hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/30 hover:border-indigo-200/40 dark:border-slate-800/60 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/20 dark:hover:border-indigo-800/30 transition-all duration-300 text-left group"
+                  className="flex items-center gap-3 p-3 rounded-2xl border border-slate-200/70 hover:border-indigo-400 bg-white/70 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-indigo-600 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/20 transition-all duration-300 group shadow-sm text-left"
                 >
-                  <img src={account.photo} alt={account.name} className="h-8 w-8 rounded-full object-cover bg-slate-50 group-hover:shadow-md transition-shadow" />
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-slate-850 dark:text-white truncate">{account.name}</span>
-                    <span className="text-[10px] text-slate-400 truncate">{account.email}</span>
+                  <img 
+                    src={account.photo} 
+                    alt={account.name} 
+                    className="h-9 w-9 rounded-full object-cover ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition-all" 
+                  />
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-slate-850 dark:text-white truncate">{account.name}</span>
+                      <ShieldCheck className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                    </div>
+                    <span className="text-[11px] text-slate-400 truncate">{account.email}</span>
                   </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-indigo-500 ml-auto shrink-0 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-0.5 ml-auto shrink-0 transition-all" />
                 </button>
               ))}
+            </div>
+
+            {/* Use Another Google Account Form */}
+            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-800 p-3.5 bg-slate-50/70 dark:bg-slate-950/50 flex flex-col gap-2.5">
+              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+                Use Any Google / Gmail Account
+              </span>
+              <form onSubmit={handleCustomGoogleSubmit} className="flex flex-col gap-2">
+                <input
+                  type="email"
+                  required
+                  placeholder="yourname@gmail.com"
+                  value={customGoogleEmail}
+                  onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                  className="h-9 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-850 dark:text-white transition-colors"
+                />
+                <input
+                  type="text"
+                  placeholder="Display Name (optional)"
+                  value={customGoogleName}
+                  onChange={(e) => setCustomGoogleName(e.target.value)}
+                  className="h-9 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-850 dark:text-white transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={!customGoogleEmail || !customGoogleEmail.includes('@')}
+                  className="h-9 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-500/20"
+                >
+                  <span>Sign In with this Google Account</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            </div>
+
+            {/* Developer & OAuth Origin Configuration Accordion */}
+            <div className="border border-slate-200/60 dark:border-slate-800/80 rounded-2xl overflow-hidden bg-slate-50/40 dark:bg-slate-950/30">
+              <button
+                type="button"
+                onClick={() => setShowSettingsAccordion(!showSettingsAccordion)}
+                className="w-full p-3 flex items-center justify-between text-left text-xs font-bold text-slate-650 dark:text-slate-350 hover:bg-slate-100/50 dark:hover:bg-slate-800/40 transition-colors"
+              >
+                <div className="flex items-center gap-1.5">
+                  <Key className="h-3.5 w-3.5 text-indigo-500" />
+                  <span>Google Cloud & Firebase Settings</span>
+                </div>
+                {showSettingsAccordion ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
+
+              {showSettingsAccordion && (
+                <div className="p-3.5 pt-1 flex flex-col gap-3 text-left border-t border-slate-200/50 dark:border-slate-800/60 animate-fade-in">
+                  
+                  {/* Authorized Origin Hint */}
+                  <div className="p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/50 dark:border-indigo-800/40 text-[11px] text-slate-600 dark:text-slate-300 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-indigo-700 dark:text-indigo-300">Authorized JavaScript Origin:</span>
+                      <button
+                        type="button"
+                        onClick={handleCopyOrigin}
+                        className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 hover:underline"
+                      >
+                        <Copy className="h-3 w-3" />
+                        {originCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    <code className="bg-white/80 dark:bg-slate-900 px-2 py-1 rounded text-[11px] font-mono text-indigo-950 dark:text-indigo-200 border border-indigo-100 dark:border-indigo-900">
+                      {typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'}
+                    </code>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Add this origin to your Google Cloud Console OAuth 2.0 Web Client to enable Google popup auth on this domain.
+                    </p>
+                  </div>
+
+                  {/* Client ID Form */}
+                  <form onSubmit={handleSaveClientId} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Google OAuth Client ID
+                      </label>
+                      <a
+                        href="https://console.cloud.google.com/apis/credentials"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
+                      >
+                        Google Console <ExternalLink className="h-2.5 w-2.5" />
+                      </a>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="...apps.googleusercontent.com"
+                        value={clientInputVal}
+                        onChange={(e) => setClientInputVal(e.target.value)}
+                        className="h-8 flex-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!clientInputVal.trim()}
+                        className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs shrink-0 transition-colors"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Firebase API Key Form */}
+                  <form onSubmit={handleSaveFirebaseKey} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Firebase API Key (Optional)
+                      </label>
+                      <a
+                        href="https://console.firebase.google.com"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
+                      >
+                        Firebase Console <ExternalLink className="h-2.5 w-2.5" />
+                      </a>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="AIzaSy..."
+                        value={firebaseKeyVal}
+                        onChange={(e) => setFirebaseKeyVal(e.target.value)}
+                        className="h-8 flex-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 text-xs outline-none focus:border-indigo-500 text-slate-800 dark:text-white"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!firebaseKeyVal.trim()}
+                        className="h-8 px-3 rounded-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 text-white font-bold text-xs shrink-0 transition-colors"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
 
             <button
               type="button"
               onClick={() => setShowGoogleModal(false)}
-              className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-1 transition-colors"
+              className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-center"
             >
               Cancel
             </button>

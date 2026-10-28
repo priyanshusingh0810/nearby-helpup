@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { WeatherWidget } from '../components/widgets/WeatherWidget';
+import { SaaSUpgradeModal } from '../components/common/SaaSUpgradeModal';
 
 export const Profile: React.FC = () => {
   const { user_id } = useParams<{ user_id: string }>();
@@ -43,6 +44,7 @@ export const Profile: React.FC = () => {
   const [verifyPhone, setVerifyPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [showSaaSModal, setShowSaaSModal] = useState(false);
 
   // Profile edit states
   const [isEditing, setIsEditing] = useState(false);
@@ -300,6 +302,32 @@ export const Profile: React.FC = () => {
                   <span>Verified</span>
                 </span>
               )}
+              {profileUser.badges?.includes('Google Verified') && (
+                <span className="rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-2 py-0.5 text-[9px] font-bold flex items-center gap-1 shadow-sm border border-slate-200/60 dark:border-slate-700/60">
+                  <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z" />
+                    <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z" />
+                    <path fill="#FBBC05" d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z" />
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z" />
+                  </svg>
+                  <span>Google User</span>
+                </span>
+              )}
+
+              {/* SaaS Plan Badge */}
+              <button
+                type="button"
+                onClick={() => setShowSaaSModal(true)}
+                className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold flex items-center gap-1 shadow-sm transition-transform hover:scale-105 border ${
+                  (localStorage.getItem('helpup_plan_tier') || 'Free Neighbor').includes('Pro')
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                    : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-indigo-200/50 dark:border-indigo-800/50'
+                }`}
+                title="Manage Membership Plan"
+              >
+                <Sparkles className="h-3 w-3" />
+                <span>{localStorage.getItem('helpup_plan_tier') || 'Free Neighbor'}</span>
+              </button>
             </div>
             <p className="text-xs text-slate-455">@{profileUser.username}</p>
             <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-1.5">
@@ -617,6 +645,11 @@ export const Profile: React.FC = () => {
 
       </div>
 
+      {/* SaaS Upgrade Modal */}
+      <SaaSUpgradeModal
+        isOpen={showSaaSModal}
+        onClose={() => setShowSaaSModal(false)}
+      />
     </div>
   );
 };

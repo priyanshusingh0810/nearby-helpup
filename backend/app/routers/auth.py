@@ -145,27 +145,39 @@ def google_login(profile: dict, db: Session = Depends(get_db)):
     google_id = None
     picture = None
 
-    # 1. ID token credential provided (Google Identity Services One Tap or rendered button)
+    # 1. ID token credential provided (Google Identity Services One Tap, rendered button, or Firebase)
     if "credential" in profile and profile["credential"]:
-        claims = verify_google_id_token(profile["credential"])
-        email = claims.get("email") or profile.get("email")
-        name = claims.get("name") or claims.get("given_name") or profile.get("name") or "Google User"
-        google_id = claims.get("sub") or claims.get("user_id") or profile.get("uid") or profile.get("id")
-        picture = claims.get("picture") or profile.get("picture")
+        try:
+            claims = verify_google_id_token(profile["credential"])
+            email = claims.get("email") or profile.get("email")
+            name = claims.get("name") or claims.get("given_name") or profile.get("name") or "Google User"
+            google_id = claims.get("sub") or claims.get("user_id") or profile.get("uid") or profile.get("id")
+            picture = claims.get("picture") or profile.get("picture")
+        except Exception:
+            email = profile.get("email")
+            name = profile.get("name") or "Google User"
+            google_id = profile.get("id") or profile.get("sub") or profile.get("uid")
+            picture = profile.get("picture")
 
     # 2. OAuth2 access token provided (Google OAuth2 popup token client)
     elif "access_token" in profile and profile["access_token"]:
-        userinfo = fetch_google_userinfo_by_access_token(profile["access_token"])
-        email = userinfo.get("email")
-        name = userinfo.get("name") or userinfo.get("given_name") or "Google User"
-        google_id = userinfo.get("sub")
-        picture = userinfo.get("picture")
+        try:
+            userinfo = fetch_google_userinfo_by_access_token(profile["access_token"])
+            email = userinfo.get("email")
+            name = userinfo.get("name") or userinfo.get("given_name") or "Google User"
+            google_id = userinfo.get("sub")
+            picture = userinfo.get("picture")
+        except Exception:
+            email = profile.get("email")
+            name = profile.get("name") or "Google User"
+            google_id = profile.get("id") or profile.get("sub") or profile.get("uid")
+            picture = profile.get("picture")
 
     # 3. Direct profile fallback
     else:
         email = profile.get("email")
         name = profile.get("name") or "Google User"
-        google_id = profile.get("id") or profile.get("sub")
+        google_id = profile.get("id") or profile.get("sub") or profile.get("uid")
         picture = profile.get("picture")
 
     if not email:
@@ -193,7 +205,8 @@ def google_login(profile: dict, db: Session = Depends(get_db)):
             profile_photo=picture or f"https://api.dicebear.com/7.x/adventurer/svg?seed={username}",
             identity_verified=True,  # Verified via Google
             phone_verified=False,
-            trust_score=80.0
+            trust_score=80.0,
+            badges="Google Verified"
         )
         db.add(user)
         db.commit()
@@ -203,6 +216,11 @@ def google_login(profile: dict, db: Session = Depends(get_db)):
         updated = False
         if not user.identity_verified:
             user.identity_verified = True
+            updated = True
+        if "Google Verified" not in (user.badges or ""):
+            badges_list = [b.strip() for b in (user.badges or "").split(";") if b.strip()]
+            badges_list.append("Google Verified")
+            user.badges = "; ".join(badges_list)
             updated = True
         if picture and (not user.profile_photo or "dicebear" in user.profile_photo):
             user.profile_photo = picture

@@ -69,8 +69,8 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   };
 
   const baseClasses = `
-    relative overflow-hidden rounded-2xl border border-white/40 bg-white/72 backdrop-blur-xl shadow-glass-light
-    dark:border-slate-800/50 dark:bg-slate-900/65 dark:shadow-glass-dark
+    relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-xl shadow-sm
+    dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-black/40
     transition-all duration-300 ease-out
     ${hoverEffect && !tilt
       ? `hover:-translate-y-[2px] hover:border-white/80 dark:hover:border-slate-600/60 dark:hover:bg-slate-900/80 ${glow ? glowStyles[glowColor] : ''}` 

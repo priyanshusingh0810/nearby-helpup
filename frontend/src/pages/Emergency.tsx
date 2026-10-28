@@ -119,47 +119,51 @@ export const Emergency: React.FC = () => {
           {emergencies.map((item) => (
             <GlassCard 
               key={item.id} 
-              className="relative p-6 flex flex-col gap-4 border-rose-100/40 dark:border-rose-950/20 bg-gradient-to-tr from-rose-50/5 to-white/70 dark:from-rose-950/5" 
+              className="relative p-6 flex flex-col justify-between border-rose-200/60 dark:border-rose-900/40 bg-gradient-to-br from-rose-50/20 via-white to-rose-50/10 dark:from-rose-950/20 dark:via-slate-900 dark:to-rose-950/10 shadow-md emergency-pulse" 
               hoverEffect={true}
             >
-              <div className="absolute right-4 top-4 rounded-full bg-gradient-to-r from-rose-500 to-rose-600 px-3 py-1 text-[8px] font-extrabold text-white uppercase tracking-widest animate-pulse shadow-md shadow-rose-500/20">
-                Timer: {getCountdown(item.expires_at)}
-              </div>
-
-              <div className="flex items-start gap-3.5 mt-2">
-                <span className="text-3xl shrink-0">🚨</span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-extrabold text-slate-850 dark:text-white truncate">
-                    {item.title}
-                  </h4>
-                  <span className="text-[9px] font-bold text-rose-600 bg-rose-50 border border-rose-100 dark:bg-rose-950/40 dark:text-rose-455 px-2.5 py-0.5 rounded mt-1.5 inline-block">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-bold text-rose-600 bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     {item.category}
                   </span>
+                  <span className="rounded-full bg-rose-600 text-white px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider shadow-sm animate-pulse">
+                    ⏱️ {getCountdown(item.expires_at)}
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-3 mt-1">
+                  <span className="text-2xl shrink-0">🚨</span>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-snug">
+                      {item.title}
+                    </h4>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mt-3">
+                  {item.description}
+                </p>
+
+                <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-4">
+                  <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                  <span>{item.location_name} • Verified Hyperlocal GPS</span>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-655 dark:text-slate-400 leading-relaxed mt-1">
-                {item.description}
-              </p>
-
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                <MapPin className="h-4 w-4 text-indigo-500 shrink-0" />
-                <span>{item.location_name} • Verified Location Coords</span>
-              </div>
-
-              <div className="flex items-center justify-between border-t border-rose-100/50 dark:border-rose-950/20 pt-4 mt-2">
+              <div className="flex items-center justify-between border-t border-rose-100 dark:border-rose-900/30 pt-4 mt-4">
                 <div className="flex items-center gap-2">
-                  <img src={item.owner.profile_photo} alt="" className="h-6 w-6 rounded-full object-cover bg-slate-50" />
+                  <img src={item.owner.profile_photo} alt="" className="h-7 w-7 rounded-lg object-cover bg-slate-100" />
                   <div>
-                    <h5 className="text-[10px] font-bold">{item.owner.name}</h5>
-                    <span className="text-[8px] text-slate-400">Trust: {Math.round(item.owner.trust_score)}</span>
+                    <h5 className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{item.owner.name}</h5>
+                    <span className="text-[9px] text-slate-400">Trust Score: {Math.round(item.owner.trust_score)}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => handleRespond(item)}
-                  className="rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-500 text-white font-extrabold text-[10px] px-4 py-2.5 transition-all duration-300 shadow-md shadow-rose-500/20 dark:shadow-rose-500/10 flex items-center gap-1 hover:-translate-y-[1px]"
+                  className="saas-btn-primary !bg-gradient-to-r !from-rose-600 !to-rose-500 hover:!from-rose-500 hover:!to-rose-600 !py-1.5 !px-3.5 !text-xs !shadow-rose-600/30"
                 >
-                  <span>Lend / Help Out</span>
+                  <span>Respond Instantly</span>
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </button>
               </div>
