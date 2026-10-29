@@ -1,15 +1,26 @@
 const getApiBaseUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  if (typeof window !== 'undefined') {
+  let url = (import.meta.env.VITE_API_URL || '').trim();
+  if (!url && typeof window !== 'undefined') {
     const host = window.location.hostname;
     const port = window.location.port;
     if (port === '5173' || port === '3000' || host === 'localhost' || host === '127.0.0.1') {
-      return 'http://localhost:8000/api/v1';
+      url = 'http://localhost:8000/api/v1';
+    } else {
+      url = 'https://nearby-helpup-backend-pq3w.onrender.com/api/v1';
     }
   }
-  return 'https://nearby-helpup-backend-pq3w.onrender.com/api/v1';
+  if (!url) {
+    url = 'http://localhost:8000/api/v1';
+  }
+
+  // Strip any trailing slashes
+  url = url.replace(/\/+$/, '');
+
+  // Automatically append /api/v1 if not present
+  if (!url.endsWith('/api/v1')) {
+    url = `${url}/api/v1`;
+  }
+  return url;
 };
 
 const BASE_URL = getApiBaseUrl();

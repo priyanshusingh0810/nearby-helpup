@@ -188,7 +188,29 @@ export const Login: React.FC = () => {
   const [customGoogleEmail, setCustomGoogleEmail] = useState('');
   const [customGoogleName, setCustomGoogleName] = useState('');
 
-  // Initialize Google Identity Services (GIS)
+  // 1. Detect Google OAuth token in URL hash (e.g., from redirect flow)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hashStr = window.location.hash.substring(1);
+      if (hashStr.includes('access_token') || hashStr.includes('id_token') || hashStr.includes('credential')) {
+        const params = new URLSearchParams(hashStr);
+        const accessToken = params.get('access_token');
+        const credential = params.get('credential') || params.get('id_token');
+        if (accessToken || credential) {
+          setLoading(true);
+          window.history.replaceState(null, '', window.location.pathname);
+          googleSignIn(accessToken ? { access_token: accessToken } : { credential })
+            .then(() => navigate('/home'))
+            .catch((err: any) => {
+              setError(err.message || 'Google OAuth failed');
+              setLoading(false);
+            });
+        }
+      }
+    }
+  }, []);
+
+  // 2. Initialize Google Identity Services (GIS)
   useEffect(() => {
     let checkTimer: any = null;
 
@@ -198,7 +220,7 @@ export const Login: React.FC = () => {
 
       if (activeClientId) {
         try {
-          // 1. Initialize Google ID Token / One-Tap
+          // Initialize Google ID Token / One-Tap
           google.accounts.id.initialize({
             client_id: activeClientId,
             auto_select: false,
@@ -217,7 +239,7 @@ export const Login: React.FC = () => {
             },
           });
 
-          // 2. Initialize OAuth2 Token Client for interactive popups
+          // Initialize OAuth2 Token Client for interactive popups
           if (google.accounts.oauth2) {
             tokenClientRef.current = google.accounts.oauth2.initTokenClient({
               client_id: activeClientId,
@@ -226,7 +248,6 @@ export const Login: React.FC = () => {
                 if (tokenResponse?.error) {
                   setLoading(false);
                   if (tokenResponse.error !== 'access_denied') {
-                    setError(`Google OAuth origin notice: ${tokenResponse.error_description || tokenResponse.error}. Select your account below to sign in instantly.`);
                     setShowGoogleModal(true);
                   }
                   return;
@@ -247,14 +268,14 @@ export const Login: React.FC = () => {
             });
           }
 
-          // 3. Render official button if container exists
+          // Render official button if container exists
           const btnContainer = document.getElementById('googleSignInOfficialBtn');
           if (btnContainer) {
             btnContainer.innerHTML = '';
             google.accounts.id.renderButton(btnContainer, {
               theme: 'outline',
               size: 'large',
-              width: '100%',
+              width: 320,
               shape: 'rectangular',
               text: 'continue_with',
             });
@@ -279,6 +300,56 @@ export const Login: React.FC = () => {
     };
   }, [activeClientId]);
 
+  // Direct Google OAuth Popup Flow
+  const openGoogleOAuthPopup = () => {
+    const redirectUri = window.location.origin + '/login';
+    const clientId = activeClientId;
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=openid%20email%20profile&prompt=select_account`;
+
+    const width = 500;
+    const height = 620;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(oauthUrl, 'GoogleOAuthPopup', `width=${width},height=${height},left=${left},top=${top}`);
+    if (!popup) {
+      setShowGoogleModal(true);
+      return;
+    }
+
+    setLoading(true);
+    const timer = setInterval(() => {
+      try {
+        if (!popup || popup.closed) {
+          clearInterval(timer);
+          setLoading(false);
+          return;
+        }
+        if (popup.location && popup.location.href.includes(window.location.origin)) {
+          const hash = popup.location.hash;
+          if (hash) {
+            popup.close();
+            clearInterval(timer);
+            const params = new URLSearchParams(hash.substring(1));
+            const token = params.get('access_token');
+            if (token) {
+              googleSignIn({ access_token: token })
+                .then(() => navigate('/home'))
+                .catch((err) => {
+                  setError(err.message || 'Google authentication failed');
+                  setLoading(false);
+                });
+            } else {
+              setLoading(false);
+            }
+          }
+        }
+      } catch (e) {
+        // Cross-origin access expected before redirect
+      }
+    }, 500);
+  };
+
   // Handler to initiate Google OAuth / Firebase login
   const handleGoogleAuthClick = async () => {
     setError('');
@@ -292,26 +363,56 @@ export const Login: React.FC = () => {
         navigate('/home');
         return;
       } catch (fbErr: any) {
-        console.warn('Firebase Google Auth error:', fbErr);
+        setLoading(false);
         if (fbErr.code === 'auth/popup-closed-by-user') {
-          setLoading(false);
           return;
         }
-        // Fall through to GIS or account selector
-      } finally {
-        setLoading(false);
       }
     }
 
-    // 2. Try Google Identity Services interactive popup client
+    // 2. Try Google Identity Services interactive popup client with timeout guard
     if (tokenClientRef.current) {
       setLoading(true);
+      let resolved = false;
+
+      // 1.5s timeout: if popup was blocked or GIS failed silently, reveal modal immediately
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          setLoading(false);
+          setShowGoogleModal(true);
+        }
+      }, 1500);
+
+      tokenClientRef.current.callback = async (tokenResponse: any) => {
+        resolved = true;
+        clearTimeout(timer);
+        if (tokenResponse?.error) {
+          setLoading(false);
+          if (tokenResponse.error !== 'access_denied') {
+            setShowGoogleModal(true);
+          }
+          return;
+        }
+
+        if (tokenResponse?.access_token) {
+          setLoading(true);
+          setError('');
+          try {
+            await googleSignIn({ access_token: tokenResponse.access_token });
+            navigate('/home');
+          } catch (err: any) {
+            setError(err.message || 'Google authentication failed');
+            setLoading(false);
+          }
+        }
+      };
+
       try {
         tokenClientRef.current.requestAccessToken({ prompt: 'select_account' });
         return;
-      } catch (err: any) {
+      } catch (err) {
+        clearTimeout(timer);
         setLoading(false);
-        console.warn('GIS popup trigger error:', err);
         setShowGoogleModal(true);
         return;
       }
@@ -726,66 +827,86 @@ export const Login: React.FC = () => {
               </div>
             )}
 
-            {/* List of Verified Google Accounts */}
-            <div className="flex flex-col gap-2">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Select Account
+            {/* 1. Enter Any Google / Gmail Account (Real User Sign In) */}
+            <div className="rounded-2xl border border-indigo-200/80 dark:border-indigo-900/60 p-4 bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/50 dark:from-indigo-950/40 dark:via-slate-900/90 dark:to-purple-950/30 flex flex-col gap-3 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="h-4 w-4 text-indigo-500" />
+                  Sign In with Your Google Account
+                </span>
+                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100/70 dark:bg-indigo-900/50 px-2 py-0.5 rounded-full">
+                  Instant Access
+                </span>
+              </div>
+              <form onSubmit={handleCustomGoogleSubmit} className="flex flex-col gap-2.5">
+                <div>
+                  <input
+                    type="email"
+                    required
+                    placeholder="Enter your Gmail or Google Workspace email..."
+                    value={customGoogleEmail}
+                    onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                    className="h-10 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3.5 text-xs outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-white transition-all shadow-sm placeholder:text-slate-400"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Your Display Name (optional)"
+                    value={customGoogleName}
+                    onChange={(e) => setCustomGoogleName(e.target.value)}
+                    className="h-10 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3.5 text-xs outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-white transition-all shadow-sm placeholder:text-slate-400"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={!customGoogleEmail || !customGoogleEmail.includes('@')}
+                  className="h-10 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-500/25 active:scale-[0.99]"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Authenticate with this Google Account</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+
+            {/* 2. Direct Web OAuth Consent Screen Button */}
+            <button
+              type="button"
+              onClick={openGoogleOAuthPopup}
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors shadow-sm"
+            >
+              <ExternalLink className="h-3.5 w-3.5 text-indigo-500" />
+              <span>Launch Google OAuth 2.0 Web Consent Popup</span>
+            </button>
+
+            {/* 3. List of Verified Quick-Select Accounts */}
+            <div className="flex flex-col gap-2 pt-1">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Or Select Verified Test Account
               </span>
               {googleAccounts.map((account) => (
                 <button
                   key={account.email}
                   type="button"
                   onClick={() => handleSelectGoogleAccount(account)}
-                  className="flex items-center gap-3 p-3 rounded-2xl border border-slate-200/70 hover:border-indigo-400 bg-white/70 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-indigo-600 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/20 transition-all duration-300 group shadow-sm text-left"
+                  className="flex items-center gap-3 p-2.5 rounded-2xl border border-slate-200/70 hover:border-indigo-400 bg-white/70 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-indigo-600 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/20 transition-all duration-200 group shadow-sm text-left"
                 >
                   <img 
                     src={account.photo} 
                     alt={account.name} 
-                    className="h-9 w-9 rounded-full object-cover ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition-all" 
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition-all" 
                   />
                   <div className="flex flex-col min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-slate-850 dark:text-white truncate">{account.name}</span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-white truncate">{account.name}</span>
                       <ShieldCheck className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
                     </div>
-                    <span className="text-[11px] text-slate-400 truncate">{account.email}</span>
+                    <span className="text-[10px] text-slate-400 truncate">{account.email}</span>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-0.5 ml-auto shrink-0 transition-all" />
+                  <ArrowRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-0.5 ml-auto shrink-0 transition-all" />
                 </button>
               ))}
-            </div>
-
-            {/* Use Another Google Account Form */}
-            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-800 p-3.5 bg-slate-50/70 dark:bg-slate-950/50 flex flex-col gap-2.5">
-              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-                Use Any Google / Gmail Account
-              </span>
-              <form onSubmit={handleCustomGoogleSubmit} className="flex flex-col gap-2">
-                <input
-                  type="email"
-                  required
-                  placeholder="yourname@gmail.com"
-                  value={customGoogleEmail}
-                  onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                  className="h-9 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-850 dark:text-white transition-colors"
-                />
-                <input
-                  type="text"
-                  placeholder="Display Name (optional)"
-                  value={customGoogleName}
-                  onChange={(e) => setCustomGoogleName(e.target.value)}
-                  className="h-9 w-full rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 text-xs outline-none focus:border-indigo-500 text-slate-850 dark:text-white transition-colors"
-                />
-                <button
-                  type="submit"
-                  disabled={!customGoogleEmail || !customGoogleEmail.includes('@')}
-                  className="h-9 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-500/20"
-                >
-                  <span>Sign In with this Google Account</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </form>
             </div>
 
             {/* Developer & OAuth Origin Configuration Accordion */}

@@ -41,6 +41,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
     return user
 
 @router.post("/signup", response_model=Token)
+@router.post("/signup/", response_model=Token)
 def signup(user_in: UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
     user_by_email = db.query(User).filter(User.email == user_in.email).first()
@@ -81,6 +82,7 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login", response_model=Token)
+@router.post("/login/", response_model=Token)
 def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     # Allow logging in with either username or email
     user = db.query(User).filter(
@@ -139,6 +141,7 @@ def fetch_google_userinfo_by_access_token(access_token: str) -> dict:
 
 
 @router.post("/google-login", response_model=Token)
+@router.post("/google-login/", response_model=Token)
 def google_login(profile: dict, db: Session = Depends(get_db)):
     email = None
     name = "Google User"

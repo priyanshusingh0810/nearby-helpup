@@ -44,6 +44,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Include Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(auth.router) # Root alias for /auth/login and other auth endpoints
 app.include_router(listings.router, prefix=settings.API_V1_STR)
 app.include_router(chat.router, prefix=settings.API_V1_STR)
 app.include_router(profile.router, prefix=settings.API_V1_STR)
