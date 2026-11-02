@@ -19,7 +19,11 @@ import {
   Sparkles,
   Copy,
   Info,
-  ShieldCheck
+  ShieldCheck,
+  Radio,
+  Eye,
+  EyeOff,
+  Heart
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { api } from '../services/api';
@@ -37,6 +41,7 @@ export const Login: React.FC = () => {
   // Method switching ('email' | 'phone')
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Email fields
   const [email, setEmail] = useState('');
@@ -298,7 +303,7 @@ export const Login: React.FC = () => {
     return () => {
       if (checkTimer) clearInterval(checkTimer);
     };
-  }, [activeClientId]);
+  }, [activeClientId, isSignUp, loginMethod]);
 
   // Direct Google OAuth Popup Flow
   const openGoogleOAuthPopup = () => {
@@ -350,77 +355,7 @@ export const Login: React.FC = () => {
     }, 500);
   };
 
-  // Handler to initiate Google OAuth / Firebase login
-  const handleGoogleAuthClick = async () => {
-    setError('');
 
-    // 1. Try Firebase Google Popup if Firebase is configured with an API key
-    if (isFirebaseConfigured()) {
-      setLoading(true);
-      try {
-        const result = await signInWithFirebaseGoogle();
-        await googleSignIn(result);
-        navigate('/home');
-        return;
-      } catch (fbErr: any) {
-        setLoading(false);
-        if (fbErr.code === 'auth/popup-closed-by-user') {
-          return;
-        }
-      }
-    }
-
-    // 2. Try Google Identity Services interactive popup client with timeout guard
-    if (tokenClientRef.current) {
-      setLoading(true);
-      let resolved = false;
-
-      // 1.5s timeout: if popup was blocked or GIS failed silently, reveal modal immediately
-      const timer = setTimeout(() => {
-        if (!resolved) {
-          setLoading(false);
-          setShowGoogleModal(true);
-        }
-      }, 1500);
-
-      tokenClientRef.current.callback = async (tokenResponse: any) => {
-        resolved = true;
-        clearTimeout(timer);
-        if (tokenResponse?.error) {
-          setLoading(false);
-          if (tokenResponse.error !== 'access_denied') {
-            setShowGoogleModal(true);
-          }
-          return;
-        }
-
-        if (tokenResponse?.access_token) {
-          setLoading(true);
-          setError('');
-          try {
-            await googleSignIn({ access_token: tokenResponse.access_token });
-            navigate('/home');
-          } catch (err: any) {
-            setError(err.message || 'Google authentication failed');
-            setLoading(false);
-          }
-        }
-      };
-
-      try {
-        tokenClientRef.current.requestAccessToken({ prompt: 'select_account' });
-        return;
-      } catch (err) {
-        clearTimeout(timer);
-        setLoading(false);
-        setShowGoogleModal(true);
-        return;
-      }
-    }
-
-    // 3. Fallback: Open Google Account Chooser modal
-    setShowGoogleModal(true);
-  };
 
   const handleSaveClientId = (e: React.FormEvent) => {
     e.preventDefault();
@@ -497,53 +432,51 @@ export const Login: React.FC = () => {
     });
   };
 
-  // Shared input class with gradient focus ring
-  const inputClass = "h-10 w-full rounded-xl bg-slate-50/80 border border-slate-200/60 pl-10 pr-4 text-xs outline-none transition-all duration-300 focus:border-indigo-500/50 focus:bg-white focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08),0_0_20px_-4px_rgba(79,70,229,0.12)] dark:bg-slate-900/80 dark:border-slate-800/60 dark:text-white dark:focus:bg-slate-950 dark:focus:border-indigo-500/40 dark:focus:shadow-[0_0_0_3px_rgba(79,70,229,0.1),0_0_20px_-4px_rgba(79,70,229,0.08)]";
-  const inputClassNoIcon = "h-10 w-full rounded-xl bg-slate-50/80 border border-slate-200/60 px-4 text-xs outline-none transition-all duration-300 focus:border-indigo-500/50 focus:bg-white focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08),0_0_20px_-4px_rgba(79,70,229,0.12)] dark:bg-slate-900/80 dark:border-slate-800/60 dark:text-white dark:focus:bg-slate-950 dark:focus:border-indigo-500/40 dark:focus:shadow-[0_0_0_3px_rgba(79,70,229,0.1),0_0_20px_-4px_rgba(79,70,229,0.08)]";
+  // Shared input class with clean modern focus ring
+  const inputClass = "h-11 w-full rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] pl-10 pr-10 text-xs outline-none transition-all focus:border-[#19A974] focus:ring-2 focus:ring-[#19A974]/20 text-[#1E293B] dark:text-white placeholder:text-[#94A3B8]";
+  const inputClassNoIcon = "h-11 w-full rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] px-4 text-xs outline-none transition-all focus:border-[#19A974] focus:ring-2 focus:ring-[#19A974]/20 text-[#1E293B] dark:text-white placeholder:text-[#94A3B8]";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 transition-colors relative overflow-hidden">
-      {/* Animated gradient mesh background */}
-      <div className="absolute inset-0 ambient-mesh" />
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/12 rounded-full blur-[140px] pointer-events-none animate-glow-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none animate-glow-pulse delay-300" />
-      <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-pink-500/6 rounded-full blur-[100px] pointer-events-none animate-glow-pulse delay-500" />
+    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] dark:bg-[#0F172A] px-4 py-12 transition-colors relative overflow-hidden">
+      {/* Subtle background glow */}
+      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-[#19A974]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#38BDF8]/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10">
         
-        {/* Brand Header with glow halo */}
+        {/* Brand Header */}
         <div className="flex flex-col items-center mb-8 animate-fade-in">
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white text-3xl shadow-xl mb-4 animate-float">
-            🤝
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-30 blur-xl scale-150" />
-            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-md" />
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            {isSignUp ? 'Create a HelpUp Account' : 'Welcome back to HelpUp'}
-          </h2>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            {isSignUp ? 'Join your local university sharing network' : 'Sign in to access nearby borrows and offers'}
-          </p>
+          <Link to="/" className="flex flex-col items-center group">
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19A974] text-white shadow-md shadow-[#19A974]/30 mb-3 transition-transform group-hover:scale-105">
+              <Heart className="h-6 w-6 fill-white" />
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-[#102A43] dark:text-white text-center">
+              {isSignUp ? 'Create Your HelpUp Account' : 'Welcome Back to HelpUp'}
+            </h2>
+            <p className="mt-1.5 text-xs text-[#64748B] dark:text-[#9FB3C8] text-center">
+              {isSignUp ? 'Join your neighborhood mutual aid network' : 'Sign in to access nearby community assistance'}
+            </p>
+          </Link>
         </div>
 
-        <GlassCard className="p-6 md:p-8 gradient-border" hoverEffect={false}>
+        <GlassCard className="p-6 sm:p-8" hoverEffect={false}>
           {error && (
-            <div className="mb-4 flex items-center gap-2.5 rounded-xl border border-rose-200/50 bg-gradient-to-r from-rose-50/80 to-rose-50/40 p-3 text-xs font-semibold text-rose-600 dark:border-rose-950/30 dark:bg-gradient-to-r dark:from-rose-950/30 dark:to-rose-950/10 dark:text-rose-400 animate-fade-in">
+            <div className="mb-4 flex items-center gap-2.5 rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 p-3 text-xs font-semibold text-[#EF4444] animate-fade-in">
               <ShieldAlert className="h-4.5 w-4.5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Form Tabs with gradient indicator */}
+          {/* Form Tabs */}
           {!isSignUp && (
-            <div className="flex bg-slate-100/80 dark:bg-slate-900/80 p-1 rounded-xl mb-5 border border-slate-200/30 dark:border-slate-800/30">
+            <div className="flex bg-[#F1F5F9] dark:bg-[#0F172A] p-1 rounded-xl mb-5 border border-[#E2E8F0] dark:border-[#334155]">
               <button
                 type="button"
                 onClick={() => { setLoginMethod('email'); setError(''); }}
-                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-300 ${
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                   loginMethod === 'email' 
-                    ? 'bg-white text-indigo-600 shadow-sm dark:bg-slate-950 dark:text-indigo-400 shadow-indigo-500/5' 
-                    : 'text-slate-550 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                    ? 'bg-[#102A43] text-white shadow-xs' 
+                    : 'text-[#64748B] hover:text-[#102A43] dark:hover:text-white'
                 }`}
               >
                 Email Address
@@ -551,10 +484,10 @@ export const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => { setLoginMethod('phone'); setError(''); }}
-                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-300 ${
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                   loginMethod === 'phone' 
-                    ? 'bg-white text-indigo-600 shadow-sm dark:bg-slate-950 dark:text-indigo-400 shadow-indigo-500/5' 
-                    : 'text-slate-550 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                    ? 'bg-[#102A43] text-white shadow-xs' 
+                    : 'text-[#64748B] hover:text-[#102A43] dark:hover:text-white'
                 }`}
               >
                 Mobile Number
@@ -633,15 +566,23 @@ export const Login: React.FC = () => {
                     )}
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
+                    <Lock className="absolute left-3 top-3 h-4.5 w-4.5 text-[#94A3B8]" />
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       required
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => handlePasswordChange(e.target.value)}
                       className={inputClass}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-[#94A3B8] hover:text-[#102A43] dark:hover:text-white transition-colors"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+                    </button>
                   </div>
                   {/* Gradient Password Strength Progress Bar */}
                   {password && (
@@ -714,70 +655,30 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading || (loginMethod === 'phone' && otp.length < 4)}
-              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-500 text-xs font-bold text-white hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-500 disabled:opacity-50 transition-all duration-500 shadow-lg shadow-indigo-500/25 dark:shadow-indigo-500/15 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-[1px] active:translate-y-0"
+              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#19A974] hover:bg-[#148A5E] text-xs font-bold text-white transition-all shadow-md shadow-[#19A974]/25 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
             >
               <LogIn className="h-4 w-4" />
-              <span>{loading ? 'Authenticating...' : isSignUp ? 'Sign Up' : 'Sign In'}</span>
+              <span>{loading ? 'Authenticating...' : isSignUp ? 'Create Account' : 'Sign In'}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
 
-          {/* Social Sign In Divider with gradient line */}
+          {/* Social Sign In Divider */}
           <div className="relative my-6 flex items-center justify-center">
-            <span className="absolute h-[1px] w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-slate-800"></span>
-            <span className="relative bg-white px-3 text-[10px] font-bold text-slate-450 dark:bg-slate-900 uppercase">Or continue with</span>
+            <span className="absolute h-[1px] w-full bg-[#E2E8F0] dark:bg-[#334155]"></span>
+            <span className="relative bg-white dark:bg-[#1E293B] px-3 text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
+              Or continue with
+            </span>
           </div>
 
-          <div className="flex flex-col gap-2.5">
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handleGoogleAuthClick}
-              className="flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200/80 bg-white text-xs font-bold text-slate-750 hover:bg-slate-50 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-850 transition-all duration-300 active:scale-[0.99] disabled:opacity-50 shadow-sm"
-            >
-              <svg className="h-4.5 w-4.5 shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.27 14.59c-.25-.75-.39-1.56-.39-2.4s.14-1.65.39-2.4l-3.37-2.6C.68 8.84 0 10.34 0 12s.68 3.16 1.9 4.8l3.37-2.21z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.19 15.24 0 12 0 8.44 0 5.32 2.95 3.38 6.79l3.37 2.6c.95-2.85 3.6-4.64 6.73-4.64z"
-                />
-              </svg>
-              <span>Continue with Google</span>
-            </button>
-
-            {/* Quick account switch / selector shortcut */}
-            <button
-              type="button"
-              onClick={() => {
-                setError('');
-                setShowGoogleModal(true);
-              }}
-              className="text-[11px] text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition-colors text-center py-0.5 flex items-center justify-center gap-1"
-            >
-              <span>Choose Google account or test options</span>
-              <ArrowRight className="h-3 w-3" />
-            </button>
-
-            {/* Official GIS Button container for One-Tap / rendered button if Client ID present */}
-            {activeClientId && (
-              <div id="googleSignInOfficialBtn" className="w-full flex justify-center empty:hidden min-h-[40px]"></div>
-            )}
+          <div className="flex flex-col items-center justify-center w-full">
+            {/* Official GIS Google Sign-In Button */}
+            <div id="googleSignInOfficialBtn" className="w-full flex justify-center min-h-[44px]"></div>
           </div>
         </GlassCard>
 
         {/* Navigation bottom link */}
-        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-6 text-center text-xs text-[#64748B] dark:text-[#9FB3C8]">
           {isSignUp ? 'Already have an account?' : "Don't have an account yet?"}{' '}
           <button
             onClick={() => {
@@ -785,9 +686,9 @@ export const Login: React.FC = () => {
               setError('');
               setLoginMethod('email');
             }}
-            className="font-bold bg-gradient-to-r from-indigo-600 to-purple-500 bg-clip-text text-transparent hover:from-indigo-500 hover:to-pink-500 transition-all duration-300"
+            className="font-bold text-[#19A974] hover:text-[#148A5E] transition-colors"
           >
-            {isSignUp ? 'Sign In' : 'Sign Up'}
+            {isSignUp ? 'Sign In' : 'Sign Up for Free'}
           </button>
         </p>
 

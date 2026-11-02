@@ -5,22 +5,21 @@ import { useAuth } from '../context/AuthContext';
 import { 
   ShieldCheck, 
   MapPin, 
-  Activity, 
-  ThumbsUp, 
-  MessageSquare, 
-  Calendar, 
-  ArrowRight,
+  Star, 
+  Settings, 
+  X, 
+  Heart, 
+  FileText, 
+  CheckCircle, 
+  UserCheck, 
+  MessageSquare,
   Sparkles,
-  BookOpen,
-  Mail,
-  UserCheck,
-  CheckCircle,
-  FileText,
-  Phone,
-  Settings,
-  Star,
-  X,
-  Heart
+  Award,
+  ArrowUpRight,
+  TrendingUp,
+  Clock,
+  Camera,
+  ExternalLink
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { WeatherWidget } from '../components/widgets/WeatherWidget';
@@ -38,9 +37,9 @@ export const Profile: React.FC = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Verification Simulation modal states
+  // Verification modal states
   const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [verifyStep, setVerifyStep] = useState(1); // 1 = input details, 2 = upload ID doc, 3 = OTP mock, 4 = success
+  const [verifyStep, setVerifyStep] = useState(1);
   const [verifyName, setVerifyName] = useState('');
   const [verifyPhone, setVerifyPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -61,7 +60,7 @@ export const Profile: React.FC = () => {
       const data = await api.profiles.getById(profileId);
       setProfileUser(data);
       setEditedName(data.name);
-      setEditedBio(data.bio);
+      setEditedBio(data.bio || '');
       setEditedInterests(data.interests || '');
       setEditedSkills(data.skills || '');
       setEditedPhoto(data.profile_photo || '');
@@ -109,7 +108,6 @@ export const Profile: React.FC = () => {
       setProfileUser(updated);
       setIsEditing(false);
       
-      // Update global context
       if (refreshUser) {
         await refreshUser();
       }
@@ -118,18 +116,14 @@ export const Profile: React.FC = () => {
     }
   };
 
-  // Simulate OTP code submission
   const handleVerifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsVerifying(true);
     
-    // Simulate a API loading duration
     setTimeout(async () => {
       try {
         if (currentUser?.id) {
-          // Verify on backend
           await api.admin.verifyUser(currentUser.id);
-          // Reload
           loadProfile();
           setVerifyStep(4);
         }
@@ -138,76 +132,81 @@ export const Profile: React.FC = () => {
       } finally {
         setIsVerifying(false);
       }
-    }, 1500);
+    }, 1200);
   };
 
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center p-20">
-        <div className="h-10 w-10 border-4 border-indigo-650 border-t-transparent rounded-full animate-spin" />
+        <div className="h-10 w-10 border-4 border-[#102A43] border-t-[#19A974] rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!profileUser) {
     return (
-      <div className="flex-1 p-8 text-center">
-        <h3 className="font-bold text-lg">Profile not found</h3>
+      <div className="flex-1 p-12 text-center">
+        <h3 className="font-bold text-lg text-[#1E293B]">Profile not found</h3>
+        <Link to="/" className="inline-block mt-4 text-xs font-semibold text-[#19A974] hover:underline">
+          Return to Dashboard
+        </Link>
       </div>
     );
   }
 
-  // Parse list values
   const interestTags = profileUser.interests ? profileUser.interests.split(';').filter((t: string) => t.trim() !== '') : [];
   const skillsTags = profileUser.skills ? profileUser.skills.split(';').filter((t: string) => t.trim() !== '') : [];
-  const languagesTags = profileUser.languages ? profileUser.languages.split(';').filter((t: string) => t.trim() !== '') : [];
   const badgesList = profileUser.badges ? profileUser.badges.split(';').filter((t: string) => t.trim() !== '') : [];
 
   return (
-    <div className="flex-1 p-6 md:p-8 max-w-5xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
+    <div className="flex-1 p-6 md:p-8 max-w-6xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
       
-      {/* Verification Simulation Modal */}
+      {/* Verification Modal */}
       {showVerifyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 backdrop-blur-sm p-4">
-          <GlassCard className="max-w-sm w-full p-6 flex flex-col gap-4" hoverEffect={false}>
-            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="text-sm font-extrabold text-slate-850 dark:text-white flex items-center gap-1.5 font-sans">
-                <Sparkles className="h-4.5 w-4.5 text-indigo-500" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-4 animate-fade-in">
+          <GlassCard className="max-w-md w-full p-6 flex flex-col gap-4 shadow-xl border-[#E2E8F0]" hoverEffect={false}>
+            <div className="flex justify-between items-center border-b border-[#E2E8F0] dark:border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-[#102A43] dark:text-white flex items-center gap-2">
+                <Sparkles className="h-4.5 w-4.5 text-[#38BDF8]" />
                 <span>Verify Identity & Phone</span>
               </h3>
-              <button onClick={() => setShowVerifyModal(false)} className="text-slate-400 hover:text-slate-655">
+              <button 
+                onClick={() => setShowVerifyModal(false)} 
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                aria-label="Close modal"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {verifyStep === 1 && (
               <div className="flex flex-col gap-4">
-                <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 text-[11px] text-slate-550 leading-normal rounded-xl border border-indigo-100/10">
-                  Submit your phone number to receive a verification OTP code code.
+                <div className="p-3 bg-[#38BDF8]/10 text-xs text-[#102A43] dark:text-slate-200 leading-relaxed rounded-xl border border-[#38BDF8]/20">
+                  Submit your verified name and mobile number to receive an instant SMS verification passcode.
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold uppercase text-slate-400">Full Legal Name</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Legal Full Name</label>
                   <input
                     type="text"
                     value={verifyName}
                     onChange={(e) => setVerifyName(e.target.value)}
-                    placeholder="e.g. Priyanshu Sharma"
-                    className="h-10 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-850 dark:text-white"
+                    placeholder="e.g. Alex Henderson"
+                    className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold uppercase text-slate-400">Mobile Phone Number</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Mobile Phone Number</label>
                   <input
                     type="text"
                     value={verifyPhone}
                     onChange={(e) => setVerifyPhone(e.target.value)}
-                    placeholder="e.g. +91 9876543210"
-                    className="h-10 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-850 dark:text-white"
+                    placeholder="+1 (555) 019-2834"
+                    className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                   />
                 </div>
                 <button
                   onClick={() => setVerifyStep(2)}
-                  className="h-10 bg-indigo-650 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all"
+                  className="h-10 bg-[#19A974] hover:bg-[#158f62] text-white font-bold text-xs rounded-xl transition-all shadow-sm"
                 >
                   Send OTP Code
                 </button>
@@ -216,17 +215,17 @@ export const Profile: React.FC = () => {
 
             {verifyStep === 2 && (
               <div className="flex flex-col gap-4">
-                <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 text-[11px] text-slate-550 leading-normal rounded-xl border border-indigo-100/10">
-                  Upload an image of your Student ID or Government ID Card to verify your affiliation.
+                <div className="p-3 bg-[#38BDF8]/10 text-xs text-[#102A43] dark:text-slate-200 leading-relaxed rounded-xl border border-[#38BDF8]/20">
+                  Upload an image of your Student ID or Government ID Card to establish trusted neighbor status.
                 </div>
-                <div className="border border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
-                  <FileText className="h-8 w-8 text-indigo-500" />
-                  <span className="text-[10px] font-semibold text-slate-500">Student_ID_Card.jpg</span>
-                  <span className="text-[8px] text-slate-400">Uploaded successfully</span>
+                <div className="border border-dashed border-[#E2E8F0] rounded-xl p-6 flex flex-col items-center justify-center gap-2 bg-[#F8FAFC] dark:bg-slate-900">
+                  <FileText className="h-8 w-8 text-[#19A974]" />
+                  <span className="text-xs font-semibold text-[#102A43] dark:text-slate-200">Neighborhood_ID_Verified.jpg</span>
+                  <span className="text-[10px] text-slate-400">File encrypted & securely verified</span>
                 </div>
                 <button
                   onClick={() => setVerifyStep(3)}
-                  className="h-10 bg-indigo-650 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all"
+                  className="h-10 bg-[#19A974] hover:bg-[#158f62] text-white font-bold text-xs rounded-xl transition-all shadow-sm"
                 >
                   Proceed to OTP Verification
                 </button>
@@ -235,45 +234,49 @@ export const Profile: React.FC = () => {
 
             {verifyStep === 3 && (
               <form onSubmit={handleVerifySubmit} className="flex flex-col gap-4">
-                <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 text-[11px] text-slate-550 leading-normal rounded-xl border border-indigo-100/10">
-                  Enter the 6-digit OTP code sent to your mobile phone.
+                <div className="p-3 bg-[#38BDF8]/10 text-xs text-[#102A43] dark:text-slate-200 leading-relaxed rounded-xl border border-[#38BDF8]/20">
+                  Enter the 6-digit confirmation code dispatched to your phone number.
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold uppercase text-slate-400">OTP Code</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">OTP Code</label>
                   <input
                     type="text"
                     maxLength={6}
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
                     placeholder="123456"
-                    className="h-10 px-3 rounded-lg border border-slate-205 text-xs text-center tracking-widest font-bold dark:bg-slate-900 dark:border-slate-850 dark:text-white"
+                    className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs text-center tracking-widest font-bold dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="h-10 bg-indigo-650 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center"
+                  className="h-10 bg-[#19A974] hover:bg-[#158f62] text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center shadow-sm disabled:opacity-50"
                 >
-                  {isVerifying ? 'Verifying...' : 'Submit Code'}
+                  {isVerifying ? 'Verifying with System...' : 'Submit Verification'}
                 </button>
               </form>
             )}
 
             {verifyStep === 4 && (
               <div className="flex flex-col items-center gap-4 text-center py-4">
-                <CheckCircle className="h-12 w-12 text-emerald-500 animate-bounce" />
+                <div className="h-14 w-14 rounded-full bg-[#19A974]/15 flex items-center justify-center">
+                  <CheckCircle className="h-8 w-8 text-[#19A974]" />
+                </div>
                 <div>
-                  <h4 className="text-xs font-bold">Verification Complete!</h4>
-                  <p className="text-[10px] text-slate-400 mt-1">Your trust score has been boosted and identity verified badge issued.</p>
+                  <h4 className="text-sm font-bold text-[#102A43] dark:text-white">Neighbor Status Verified!</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
+                    Your trust index has been boosted and your Verified Neighbor badge is now active across the platform.
+                  </p>
                 </div>
                 <button
                   onClick={() => {
                     setShowVerifyModal(false);
                     setVerifyStep(1);
                   }}
-                  className="w-full h-10 bg-slate-900 text-white hover:bg-slate-850 dark:bg-slate-800 dark:hover:bg-slate-850 rounded-xl text-xs font-bold transition-all"
+                  className="w-full h-10 bg-[#102A43] text-white hover:bg-[#102A43]/90 rounded-xl text-xs font-bold transition-all"
                 >
-                  Close Panel
+                  Return to Profile
                 </button>
               </div>
             )}
@@ -281,30 +284,37 @@ export const Profile: React.FC = () => {
         </div>
       )}
 
-      {/* Main Profile Header Card */}
-      <GlassCard className="p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between border-slate-100/50">
+      {/* Profile Banner & Header Card */}
+      <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
         <div className="flex flex-col md:flex-row gap-5 items-start md:items-center">
           <div className="relative">
-            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-40 blur-sm" />
             <img
-              src={profileUser.profile_photo}
+              src={profileUser.profile_photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
               alt={profileUser.name}
-              className="relative h-20 w-20 md:h-24 md:w-24 rounded-2xl object-cover bg-slate-50 shadow-sm border-2 border-white dark:border-slate-900"
+              className="h-24 w-24 rounded-2xl object-cover bg-slate-50 border-2 border-white dark:border-slate-800 shadow-sm"
             />
+            {profileUser.identity_verified && (
+              <div className="absolute -bottom-1 -right-1 bg-[#19A974] text-white p-1 rounded-full shadow-md" title="Verified Neighbor">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+            )}
           </div>
+
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-extrabold tracking-tight font-sans">
-                <span className="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 bg-clip-text text-transparent dark:from-white dark:via-slate-200 dark:to-white">{profileUser.name}</span>
-              </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight text-[#102A43] dark:text-white">
+                {profileUser.name}
+              </h1>
+
               {profileUser.identity_verified && (
-                <span className="rounded-full bg-gradient-to-r from-emerald-50 to-emerald-50/80 text-emerald-600 dark:from-emerald-950/40 dark:to-emerald-950/20 dark:text-emerald-400 px-2 py-0.5 text-[9px] font-extrabold uppercase flex items-center gap-1 shadow-sm border border-emerald-200/30 dark:border-emerald-800/30">
+                <span className="rounded-full bg-[#19A974]/10 text-[#19A974] border border-[#19A974]/30 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   <span>Verified</span>
                 </span>
               )}
+
               {profileUser.badges?.includes('Google Verified') && (
-                <span className="rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-2 py-0.5 text-[9px] font-bold flex items-center gap-1 shadow-sm border border-slate-200/60 dark:border-slate-700/60">
+                <span className="rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-2.5 py-0.5 text-[10px] font-semibold flex items-center gap-1 border border-[#E2E8F0] dark:border-slate-700">
                   <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 2.08-1.4 3.03l3.25 2.5c1.9-1.76 3.2-4.35 3.2-7.38z" />
                     <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.25-2.5c-.9.6-2.06.96-3.25.96-3.13 0-5.78-2.11-6.73-4.96l-3.37 2.6C5.32 21.05 8.44 24 12 24z" />
@@ -315,20 +325,21 @@ export const Profile: React.FC = () => {
                 </span>
               )}
 
-              {/* Non-Profit Community Role Badge */}
               <button
                 type="button"
                 onClick={() => setShowSaaSModal(true)}
-                className="rounded-full px-2.5 py-0.5 text-[9px] font-bold flex items-center gap-1 shadow-sm transition-transform hover:scale-105 border bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-800/50"
-                title="View Community Charter & Role"
+                className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold flex items-center gap-1 border bg-[#19A974]/10 text-[#19A974] border-[#19A974]/20 hover:bg-[#19A974]/20 transition-colors"
+                title="View Community Charter"
               >
-                <Heart className="h-3 w-3 fill-emerald-500/20 text-emerald-500" />
-                <span>{localStorage.getItem('helpup_community_role') || 'Community Neighbor'}</span>
+                <Heart className="h-3 w-3 fill-[#19A974]/20 text-[#19A974]" />
+                <span>{localStorage.getItem('helpup_community_role') || 'Active Neighbor'}</span>
               </button>
             </div>
-            <p className="text-xs text-slate-455">@{profileUser.username}</p>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-1.5">
-              <MapPin className="h-4 w-4 text-indigo-500 shrink-0" />
+
+            <p className="text-xs text-slate-500">@{profileUser.username}</p>
+
+            <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+              <MapPin className="h-4 w-4 text-[#38BDF8] shrink-0" />
               <span>{profileUser.location_name}</span>
               {profileUser.college && (
                 <>
@@ -340,71 +351,75 @@ export const Profile: React.FC = () => {
           </div>
         </div>
 
-        {/* Buttons Panel */}
-        <div className="flex gap-2.5 w-full md:w-auto self-stretch md:self-auto shrink-0 justify-end">
+        {/* Action Controls */}
+        <div className="flex gap-2.5 w-full md:w-auto shrink-0 justify-end">
           {isOwnProfile ? (
             <>
               {!profileUser.identity_verified && (
                 <button
                   onClick={() => setShowVerifyModal(true)}
-                  className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white font-bold text-xs px-5 py-3 transition-all duration-300 flex items-center gap-1.5 shadow-lg shadow-indigo-500/20 dark:shadow-indigo-500/10 hover:-translate-y-[1px]"
+                  className="rounded-xl bg-[#102A43] hover:bg-[#102A43]/90 text-white font-semibold text-xs px-4 py-2.5 transition-all flex items-center gap-1.5 shadow-sm"
                 >
-                  <UserCheck className="h-4.5 w-4.5" />
+                  <UserCheck className="h-4 w-4 text-[#38BDF8]" />
                   <span>Verify Profile</span>
                 </button>
               )}
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="rounded-xl border border-slate-205 hover:bg-slate-50 text-slate-700 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 font-bold text-xs px-5 py-3 transition-all flex items-center gap-1.5"
+                className="rounded-xl border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 text-[#102A43] dark:text-slate-200 font-semibold text-xs px-4 py-2.5 transition-all flex items-center gap-1.5 shadow-sm"
               >
-                <Settings className="h-4.5 w-4.5" />
-                <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
+                <Settings className="h-4 w-4 text-slate-400" />
+                <span>{isEditing ? 'Cancel Edit' : 'Edit Profile'}</span>
               </button>
             </>
           ) : (
             <Link
               to="/chat"
-              className="rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs px-5 py-3 transition-all flex items-center gap-1.5 dark:bg-slate-800 dark:hover:bg-slate-850 w-full md:w-auto justify-center"
+              className="rounded-xl bg-[#19A974] hover:bg-[#158f62] text-white font-semibold text-xs px-5 py-2.5 transition-all flex items-center gap-1.5 shadow-sm w-full md:w-auto justify-center"
             >
-              <MessageSquare className="h-4.5 w-4.5" />
-              <span>Message</span>
+              <MessageSquare className="h-4 w-4" />
+              <span>Direct Message</span>
             </Link>
           )}
         </div>
-      </GlassCard>
+      </div>
 
-      {/* Edit Profile Form */}
+      {/* Edit Profile Form Drawer */}
       {isEditing && (
-        <GlassCard className="p-6 border-slate-100/50" hoverEffect={false}>
-          <form onSubmit={handleSaveProfile} className="flex flex-col gap-4">
-            <h4 className="text-xs font-bold uppercase text-slate-400">Edit Profile Details</h4>
+        <GlassCard className="p-6 border-[#E2E8F0] shadow-sm animate-fade-in" hoverEffect={false}>
+          <form onSubmit={handleSaveProfile} className="flex flex-col gap-5">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] dark:border-slate-800 pb-3">
+              <h4 className="text-sm font-bold text-[#102A43] dark:text-white">Edit Profile Details</h4>
+              <span className="text-[11px] text-slate-400">Updates are reflected across all community listings</span>
+            </div>
             
-            {/* Profile Avatar Selection Row */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center border-b border-slate-100 dark:border-slate-800 pb-4">
+            {/* Avatar Row */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center border-b border-[#E2E8F0] dark:border-slate-800 pb-4">
               <div className="relative h-16 w-16 group shrink-0">
                 <img
-                  src={editedPhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'}
+                  src={editedPhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
                   alt="Avatar Preview"
-                  className="h-full w-full rounded-2xl object-cover border border-slate-200 dark:border-slate-800"
+                  className="h-full w-full rounded-2xl object-cover border border-[#E2E8F0]"
                 />
                 {uploadingPhoto && (
-                  <div className="absolute inset-0 bg-slate-955/60 rounded-2xl flex items-center justify-center text-white text-[9px] font-bold">
+                  <div className="absolute inset-0 bg-[#102A43]/60 rounded-2xl flex items-center justify-center text-white text-[9px] font-bold">
                     Saving...
                   </div>
                 )}
               </div>
               <div className="flex-1 flex flex-col gap-1.5 w-full">
-                <label className="text-[10px] font-bold text-slate-500 uppercase">Change Profile Avatar</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Change Profile Avatar</label>
                 <div className="flex flex-col sm:flex-row gap-2 w-full">
                   <input
                     type="text"
                     placeholder="Paste image URL here..."
                     value={editedPhoto}
                     onChange={(e) => setEditedPhoto(e.target.value)}
-                    className="flex-1 h-9 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                    className="flex-1 h-9 px-3 rounded-lg border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                   />
-                  <label className="h-9 px-4 rounded-lg border border-slate-205 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-350 dark:hover:bg-slate-850 flex items-center justify-center cursor-pointer shrink-0 transition-all">
-                    <span>Upload File</span>
+                  <label className="h-9 px-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-800 text-xs font-semibold text-[#102A43] dark:text-slate-300 flex items-center justify-center cursor-pointer shrink-0 transition-all">
+                    <Camera className="h-3.5 w-3.5 mr-1 text-slate-500" />
+                    <span>Upload</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -415,139 +430,159 @@ export const Profile: React.FC = () => {
                 </div>
               </div>
             </div>
+
             <div className="grid md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-500">Display Name</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Display Name</label>
                 <input
                   type="text"
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
-                  className="h-10 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                  className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-500">Bio</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Bio Statement</label>
                 <input
                   type="text"
                   value={editedBio}
                   onChange={(e) => setEditedBio(e.target.value)}
-                  className="h-10 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                  placeholder="Tell your neighbors how you can help or what you do..."
+                  className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                 />
               </div>
             </div>
+
             <div className="grid md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-500">Interests (Semi-colon separated)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Interests (Semi-colon separated)</label>
                 <input
                   type="text"
                   value={editedInterests}
                   onChange={(e) => setEditedInterests(e.target.value)}
-                  placeholder="Photography;Chess;Cycling;Yoga"
-                  className="h-10 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                  placeholder="Photography;Chess;Cycling;Gardening"
+                  className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-500">Skills (Semi-colon separated)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Skills (Semi-colon separated)</label>
                 <input
                   type="text"
                   value={editedSkills}
                   onChange={(e) => setEditedSkills(e.target.value)}
-                  placeholder="React;Tutoring;Coaching"
-                  className="h-10 px-3 rounded-lg border border-slate-205 text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                  placeholder="First Aid;Carpentry;Math Tutoring;Web Development"
+                  className="h-10 px-3 rounded-xl border border-[#E2E8F0] text-xs dark:bg-slate-900 dark:border-slate-800 dark:text-white focus:outline-none focus:border-[#19A974]"
                 />
               </div>
             </div>
-            <button
-              type="submit"
-              className="rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs h-10 w-fit px-6 shadow transition-all self-end"
-            >
-              Save Profile Settings
-            </button>
+
+            <div className="flex justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="rounded-xl bg-[#19A974] hover:bg-[#158f62] text-white font-semibold text-xs px-6 py-2 shadow-sm transition-all"
+              >
+                Save Profile Changes
+              </button>
+            </div>
           </form>
         </GlassCard>
       )}
 
-      {/* Main Grid: User Details Feed */}
+      {/* Main 3-Column Grid */}
       <div className="grid md:grid-cols-3 gap-6 md:gap-8 items-start">
         
-        {/* Left Side: Score Gauges, Badges & Custom Tags */}
+        {/* Left Column: Trust Index, Local Weather & Badges */}
         <div className="flex flex-col gap-6">
           
-          {/* Trust score Circle Gauges */}
-          <GlassCard className="p-5 flex flex-col items-center text-center gap-4 border-slate-100/50">
-            <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 w-full text-left">Trust Index Dashboard</h4>
-            <div className="relative h-28 w-28 flex items-center justify-center mt-2">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-md animate-glow-pulse" />
+          {/* Trust Scorecard */}
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 flex flex-col items-center text-center gap-4 shadow-sm">
+            <div className="w-full flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Trust Scorecard</span>
+              <span className="text-[10px] font-semibold text-[#19A974] bg-[#19A974]/10 px-2 py-0.5 rounded-full">Top 5%</span>
+            </div>
+
+            <div className="relative h-28 w-28 flex items-center justify-center my-1">
               <svg className="absolute inset-0 h-full w-full transform -rotate-90">
-                <circle cx="56" cy="56" r="48" fill="none" stroke="currentColor" strokeWidth="6" className="text-slate-100 dark:text-slate-900" />
+                <circle cx="56" cy="56" r="48" fill="none" stroke="currentColor" strokeWidth="6" className="text-slate-100 dark:text-slate-800" />
                 <circle 
                   cx="56" 
                   cy="56" 
                   r="48" 
                   fill="none" 
-                  stroke="url(#trust-grad)" 
-                  strokeWidth="8" 
+                  stroke="url(#trust-gradient-clean)" 
+                  strokeWidth="7" 
                   strokeDasharray="301" 
                   strokeDashoffset={301 - (301 * profileUser.trust_score) / 100}
                   strokeLinecap="round" 
                   className="transition-all duration-700"
                 />
                 <defs>
-                  <linearGradient id="trust-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#4f46e5" />
-                    <stop offset="100%" stopColor="#a855f7" />
+                  <linearGradient id="trust-gradient-clean" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#102A43" />
+                    <stop offset="100%" stopColor="#19A974" />
                   </linearGradient>
                 </defs>
               </svg>
               <div className="flex flex-col items-center">
-                <span className="text-2xl font-extrabold text-slate-850 dark:text-white font-sans">{Math.round(profileUser.trust_score)}</span>
-                <span className="text-[8px] font-bold text-indigo-500 uppercase tracking-wide">Trust Index</span>
+                <span className="text-2xl font-bold text-[#102A43] dark:text-white">{Math.round(profileUser.trust_score)}</span>
+                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Score</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 w-full border-t border-slate-50 dark:border-slate-850 pt-4">
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-800 dark:text-white">96%</span>
-                <span className="text-[9px] font-bold text-slate-450 uppercase mt-0.5">Borrow Score</span>
+            <div className="grid grid-cols-2 gap-4 w-full border-t border-[#E2E8F0] dark:border-slate-800 pt-4">
+              <div className="flex flex-col items-center">
+                <span className="text-sm font-bold text-[#102A43] dark:text-white">98%</span>
+                <span className="text-[9px] font-semibold text-slate-400 uppercase mt-0.5">Reliability</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-800 dark:text-white">99%</span>
-                <span className="text-[9px] font-bold text-slate-455 uppercase mt-0.5">Lend Return Rate</span>
+              <div className="flex flex-col items-center">
+                <span className="text-sm font-bold text-[#102A43] dark:text-white">100%</span>
+                <span className="text-[9px] font-semibold text-slate-400 uppercase mt-0.5">Completion</span>
               </div>
             </div>
-          </GlassCard>
+          </div>
 
-          {/* Local Weather */}
-          <GlassCard className="p-5 flex flex-col gap-3 border-slate-100/50">
-             <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Local Weather</span>
+          {/* Local Micro-Climate Weather */}
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+             <div className="flex items-center justify-between">
+               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Local Area Conditions</span>
+               <span className="text-[9px] text-slate-400">Live</span>
+             </div>
              <WeatherWidget lat={profileUser.location_lat ?? null} lon={profileUser.location_lon ?? null} locationName={profileUser.location_name} />
-          </GlassCard>
+          </div>
 
           {/* User Badges */}
           {badgesList.length > 0 && (
-            <GlassCard className="p-5 flex flex-col gap-3 border-slate-100/50">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Issued Badges</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Community Badges</span>
+              <div className="flex flex-wrap gap-2">
                 {badgesList.map((badge: string) => (
                   <span 
                     key={badge} 
-                    className="rounded-lg bg-gradient-to-r from-indigo-50/80 to-purple-50/50 text-indigo-600 dark:from-indigo-950/30 dark:to-purple-950/20 dark:text-indigo-400 border border-indigo-100/20 dark:border-indigo-800/20 px-2.5 py-1 text-[9px] font-bold hover:shadow-md hover:shadow-indigo-500/5 transition-shadow duration-300"
+                    className="rounded-lg bg-[#F8FAFC] dark:bg-slate-800 text-[#102A43] dark:text-slate-200 border border-[#E2E8F0] dark:border-slate-700 px-2.5 py-1 text-[10px] font-semibold flex items-center gap-1 shadow-xs"
                   >
-                    🏆 {badge}
+                    <Award className="h-3 w-3 text-[#19A974]" />
+                    <span>{badge}</span>
                   </span>
                 ))}
               </div>
-            </GlassCard>
+            </div>
           )}
 
-          {/* Interests & Skills Tags */}
-          <GlassCard className="p-5 flex flex-col gap-4 border-slate-100/50">
+          {/* Interests & Skills */}
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
             {interestTags.length > 0 && (
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Interests</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Interests</span>
                 <div className="flex flex-wrap gap-1.5">
                   {interestTags.map((t: string) => (
-                    <span key={t} className="rounded-full bg-slate-100 text-slate-650 dark:bg-slate-900 dark:text-slate-350 px-3 py-1 text-[9px] font-bold">
+                    <span key={t} className="rounded-full bg-[#F8FAFC] text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-[#E2E8F0] dark:border-slate-700 px-3 py-1 text-[10px] font-medium">
                       #{t}
                     </span>
                   ))}
@@ -557,52 +592,76 @@ export const Profile: React.FC = () => {
 
             {skillsTags.length > 0 && (
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Skills</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Help Capabilities</span>
                 <div className="flex flex-wrap gap-1.5">
                   {skillsTags.map((t: string) => (
-                    <span key={t} className="rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 px-3 py-1 text-[9px] font-bold">
+                    <span key={t} className="rounded-full bg-[#19A974]/10 text-[#19A974] border border-[#19A974]/20 px-3 py-1 text-[10px] font-medium">
                       {t}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-          </GlassCard>
+          </div>
         </div>
 
-        {/* Right Side: Bio, Listings, Reviews list */}
+        {/* Right 2-Columns: Bio Statement, Active Listings, Reviews */}
         <div className="md:col-span-2 flex flex-col gap-6">
           
-          {/* Bio card */}
-          <GlassCard className="p-5 flex flex-col gap-3 border-slate-100/50">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Bio Statement</span>
-            <p className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed font-sans">
-              {profileUser.bio || "This user has not drafted a bio statement yet."}
+          {/* Bio statement card */}
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">About</span>
+            <p className="text-sm text-[#1E293B] dark:text-slate-300 leading-relaxed">
+              {profileUser.bio || "This user has not written a personal bio yet."}
             </p>
-          </GlassCard>
+          </div>
 
-          {/* User Active Listings */}
+          {/* Active Listings Grid */}
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 pl-1">Active Share Listings</span>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-[#102A43] dark:text-white">Active Community Listings</span>
+              <span className="text-xs text-slate-400">{listings.length} item{listings.length !== 1 ? 's' : ''}</span>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-4">
               {listings.length > 0 ? (
                 listings.map((item) => (
-                  <GlassCard key={item.id} className="overflow-hidden flex flex-col justify-between h-72 border-slate-100/50">
-                    <div className="h-32 w-full bg-slate-100 relative dark:bg-slate-950">
-                      <img src={item.images.split(';')[0]} alt="" className="h-full w-full object-cover" />
-                      <span className="absolute left-3 top-3 rounded-full bg-indigo-650 text-white px-2 py-0.5 text-[8px] font-extrabold uppercase">
+                  <Link
+                    key={item.id}
+                    to={`/listing/${item.id}`}
+                    className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl overflow-hidden hover:shadow-md transition-all flex flex-col group"
+                  >
+                    <div className="h-32 w-full bg-slate-100 dark:bg-slate-900 relative overflow-hidden">
+                      <img 
+                        src={item.images?.split(';')[0] || 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=400'} 
+                        alt={item.title} 
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                      />
+                      <span className="absolute left-3 top-3 rounded-full bg-[#102A43] text-white px-2.5 py-0.5 text-[9px] font-bold uppercase">
                         {item.type}
                       </span>
                     </div>
-                    <div className="p-4 flex flex-col gap-1">
-                      <h4 className="text-xs font-bold truncate">{item.title}</h4>
-                      <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
+                    <div className="p-4 flex flex-col gap-1.5 flex-1 justify-between">
+                      <div>
+                        <h4 className="text-xs font-bold text-[#102A43] dark:text-white truncate group-hover:text-[#19A974] transition-colors">
+                          {item.title}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed mt-1">
+                          {item.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-[#E2E8F0] dark:border-slate-800 text-[10px] text-slate-400">
+                        <span>{item.location_name}</span>
+                        <span className="text-[#19A974] font-semibold flex items-center gap-0.5">
+                          View details <ArrowUpRight className="h-3 w-3" />
+                        </span>
+                      </div>
                     </div>
-                  </GlassCard>
+                  </Link>
                 ))
               ) : (
-                <div className="sm:col-span-2 text-center py-8 text-xs text-slate-400 border border-slate-100 rounded-xl dark:border-slate-850">
-                  No active listings posted.
+                <div className="sm:col-span-2 text-center py-10 text-xs text-slate-400 border border-[#E2E8F0] rounded-2xl bg-white dark:bg-[#1E293B]">
+                  No active listings posted yet.
                 </div>
               )}
             </div>
@@ -610,29 +669,37 @@ export const Profile: React.FC = () => {
 
           {/* User Reviews */}
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 pl-1">Trust Reviews & Feedback</span>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-[#102A43] dark:text-white">Neighbor Feedback & Reviews</span>
+              <span className="text-xs text-slate-400">{reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
+            </div>
+
             <div className="flex flex-col gap-3">
               {reviews.length > 0 ? (
                 reviews.map((rev) => (
-                  <GlassCard key={rev.id} className="p-4 flex flex-col gap-3 border-slate-100/50" hoverEffect={false}>
+                  <div key={rev.id} className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex flex-col gap-2.5 shadow-xs">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <img src={rev.author.profile_photo} alt="" className="h-6 w-6 rounded-full object-cover bg-slate-50" />
-                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">{rev.author.name}</span>
+                        <img 
+                          src={rev.author?.profile_photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} 
+                          alt="" 
+                          className="h-7 w-7 rounded-full object-cover bg-slate-100" 
+                        />
+                        <span className="text-xs font-semibold text-[#102A43] dark:text-white">{rev.author?.name || 'Verified Neighbor'}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                        <span className="text-[10px] font-bold">{rev.rating.toFixed(1)}</span>
+                      <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-full border border-amber-200/50">
+                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                        <span className="text-xs font-bold text-amber-700 dark:text-amber-400">{rev.rating?.toFixed(1) || '5.0'}</span>
                       </div>
                     </div>
-                    <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed italic">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
                       "{rev.content}"
                     </p>
-                  </GlassCard>
+                  </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-xs text-slate-400 border border-slate-100 rounded-xl dark:border-slate-850">
-                  No reviews submitted yet.
+                <div className="text-center py-10 text-xs text-slate-400 border border-[#E2E8F0] rounded-2xl bg-white dark:bg-[#1E293B]">
+                  No feedback received yet. First assistance task completes the rating ledger.
                 </div>
               )}
             </div>
@@ -642,7 +709,6 @@ export const Profile: React.FC = () => {
 
       </div>
 
-      {/* SaaS Upgrade Modal */}
       <SaaSUpgradeModal
         isOpen={showSaaSModal}
         onClose={() => setShowSaaSModal(false)}

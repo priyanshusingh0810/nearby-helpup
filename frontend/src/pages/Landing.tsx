@@ -1,921 +1,647 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
+  Heart, 
+  Search, 
   ArrowRight, 
-  Share2, 
-  AlertOctagon, 
   ShieldCheck, 
+  AlertTriangle, 
+  Star, 
+  Check, 
+  ChevronDown, 
+  Users, 
   MapPin, 
-  Search,
-  Sparkles,
-  Users,
-  Calendar,
-  Heart,
-  ChevronDown,
-  ShieldAlert,
-  Flame,
+  Clock, 
+  Wrench, 
+  Laptop, 
+  BookOpen, 
+  Stethoscope, 
+  Sun, 
+  Moon, 
+  Zap, 
+  HelpCircle,
   MessageSquare,
-  Check,
-  X,
-  Zap,
-  Sliders,
-  DollarSign,
-  Leaf,
-  Layers,
-  Lock,
-  Cpu,
-  BadgeCheck,
-  ExternalLink,
-  Sun,
-  Moon,
-  Laptop,
-  CheckCircle2
+  Sparkles,
+  Award,
+  ChevronRight,
+  Shield,
+  PhoneCall
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { SaaSUpgradeModal } from '../components/common/SaaSUpgradeModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AppFooter } from '../components/layout/AppFooter';
 
 export const Landing: React.FC = () => {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   
-  // Interactive UI Demo States
-  const [activeDemoTab, setActiveDemoTab] = useState<'feed' | 'map' | 'ai' | 'emergency'>('feed');
-  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [faqOpen, setFaqOpen] = useState<number | null>(0);
   const [searchVal, setSearchVal] = useState('');
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
-  // Interactive ROI Calculator States
-  const [borrowCount, setBorrowCount] = useState<number>(3);
-  const [itemAvgCost, setItemAvgCost] = useState<number>(65);
-
-  const calculatedSavings = borrowCount * itemAvgCost * 12;
-  const calculatedCarbon = Math.round(borrowCount * 6.8 * 12);
-  const calculatedConnections = borrowCount * 4;
+  const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const stats = [
-    { label: 'Active Neighbors', value: '14,200+' },
-    { label: 'Resources Shared', value: '5,800+' },
-    { label: 'Avg Emergency Response', value: '< 4.2 Mins' },
-    { label: 'Trust Rating Verification', value: '4.96 / 5.0' },
+    { label: 'Active Neighbors', value: '14,200+', tag: 'Verified Residents' },
+    { label: 'Requests Fulfilled', value: '5,800+', tag: 'Zero Commercial Fees' },
+    { label: 'Avg Emergency Response', value: '< 4.2 Mins', tag: 'Within 5km Radius' },
+    { label: 'Neighbor Trust Score', value: '4.96 / 5.0', tag: 'Peer Verification' },
   ];
 
-  const comparisonRows = [
-    {
-      feature: 'Hyperlocal 5km radius filter',
-      whatsapp: '❌ None (broad groups)',
-      facebook: '⚠️ Clunky distance filter',
-      helpup: '✅ Live GPS Mesh Circle',
-    },
-    {
-      feature: 'Verified ID & Trust Scores',
-      whatsapp: '❌ Unverified numbers',
-      facebook: '⚠️ Easily spoofed profiles',
-      helpup: '✅ Multi-factor ID + Ratings',
-    },
-    {
-      feature: 'Emergency Priority Broadcast',
-      whatsapp: '❌ Lost in chat noise',
-      facebook: '❌ Algorithm hides urgent posts',
-      helpup: '✅ High-priority radar beacon',
-    },
-    {
-      feature: 'Automated AI Item Matching',
-      whatsapp: '❌ Manual scrolling',
-      facebook: '❌ Keyword ads & spam',
-      helpup: '✅ Natural language matcher',
-    },
-    {
-      feature: 'Zero-Deposit Escrow Protection',
-      whatsapp: '❌ Informal & risky',
-      facebook: '❌ No return guarantees',
-      helpup: '✅ Optional smart deposit hold',
-    },
-    {
-      feature: 'Privacy Protected (Exact address hidden)',
-      whatsapp: '❌ Phone number exposed',
-      facebook: '❌ Profile exposed to public',
-      helpup: '✅ Generalized radius only',
-    },
+  const categories = [
+    { id: 'tools', name: 'Tools & Equipment', icon: Wrench, count: '140+ nearby', desc: 'Drills, ladders, lawn mowers, automotive tools' },
+    { id: 'emergency', name: 'Emergency SOS & Medical', icon: Stethoscope, count: '24/7 Live', desc: 'Wheelchairs, oxygen concentrators, urgent aid' },
+    { id: 'books', name: 'Study & Textbooks', icon: BookOpen, count: '95+ nearby', desc: 'Course textbooks, exam notes, lab kits' },
+    { id: 'electronics', name: 'Electronics & Gear', icon: Laptop, count: '110+ nearby', desc: 'Chargers, monitors, camera rigs, adapters' },
+    { id: 'skills', name: 'Volunteer & Skill Barter', icon: Users, count: '75+ mentors', desc: 'Coding tutoring, language practice, repairs' },
+    { id: 'care', name: 'Community Care & Rides', icon: Heart, count: '85+ helpers', desc: 'Elderly assistance, pet sitting, campus rides' }
   ];
 
-  const features = [
+  const featuredRequests = [
     {
-      icon: AlertOctagon,
-      title: 'Emergency Priority Circle',
-      desc: 'Critical medical equipment, power inverters, or urgent tools? Broadcast high-priority beacon alerts to authenticated neighbors within 5km in seconds.',
-      badge: '< 5 min SLA',
-      color: 'text-rose-500 bg-rose-500/10 border-rose-500/20'
+      id: 1,
+      title: 'Bosch Pro 18V Cordless Hammer Drill & Kit',
+      category: 'Tools & Equipment',
+      owner: 'Arjun Verma',
+      trustScore: 99,
+      distance: '0.4 km',
+      type: 'Borrow Request',
+      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80',
+      badge: 'Immediate Match'
     },
     {
-      icon: ShieldCheck,
-      title: 'Peer-to-Peer Trust Index',
-      desc: 'Multi-factor phone and identity verification, algorithmic borrowing scorecards, and tamper-resistant feedback ensure safe, reliable transactions.',
-      badge: 'Zero Scams',
-      color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20'
+      id: 2,
+      title: 'Portable Oxygen Concentrator & Oximeter Kit',
+      category: 'Emergency Aid',
+      owner: 'Dr. Anita Roy',
+      trustScore: 100,
+      distance: '0.6 km',
+      type: 'SOS Aid',
+      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80',
+      badge: 'Critical Medical'
     },
     {
-      icon: Share2,
-      title: 'Circular Resource Economy',
-      desc: 'Eliminate household waste and clutter. Borrow, lend, swap skills, or donate tools with complete peace of mind through a frictionless workflow.',
-      badge: 'Zero Waste',
-      color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'
+      id: 3,
+      title: 'Engineering Mathematics Vol. 3 & Gate Notes',
+      category: 'Study & Books',
+      owner: 'Priyanshu Sharma',
+      trustScore: 96,
+      distance: '0.2 km',
+      type: 'Resource Share',
+      image: 'https://images.unsplash.com/photo-1532012164546-f432f2e3edd3?auto=format&fit=crop&w=600&q=80',
+      badge: 'Student Verified'
+    },
+    {
+      id: 4,
+      title: 'Sony Alpha 4K Video Gimbal & 3-Axis Stabilizer',
+      category: 'Electronics',
+      owner: 'Priya Mehta',
+      trustScore: 97,
+      distance: '1.2 km',
+      type: 'Borrow Request',
+      image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80',
+      badge: 'Verified Member'
+    }
+  ];
+
+  const howItWorksSteps = [
+    {
+      step: '01',
+      title: 'Post a Request or Offer',
+      desc: 'Need a power drill, emergency medicine, or want to volunteer? Share your request in seconds with category and urgency tags.',
+      icon: Zap
+    },
+    {
+      step: '02',
+      title: 'Match with Verified Neighbors',
+      desc: 'Our real-time 5km mesh alerts trusted neighbors nearby. Review their verified identity and trust score before connecting.',
+      icon: Users
+    },
+    {
+      step: '03',
+      title: 'Coordinate in Real-Time',
+      desc: 'Use in-app messaging to finalize pickup or assistance safely without ever exposing your private phone number or exact address.',
+      icon: MessageSquare
+    },
+    {
+      step: '04',
+      title: 'Strengthen Your Community',
+      desc: 'Complete the handoff, leave peer reviews, build your neighborhood reputation, and earn badges as a Top Community Helper.',
+      icon: Award
+    }
+  ];
+
+  const testimonials = [
+    {
+      name: 'Rohan Deshmukh',
+      role: 'Resident, Rohini Sector 16',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=rohan',
+      text: 'When our power tripped during heavy rain, a neighbor 300 meters away shared an inverter generator within 15 minutes. Nearby HelpUp literally saved our medical supplies.',
+      rating: 5
+    },
+    {
+      name: 'Sneha Kulkarni',
+      role: 'Student, DTU Campus',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sneha',
+      text: 'I borrow tools and reference textbooks from senior students and lend my camera gear on weekends. Zero rental fees, zero hassle, and total mutual trust.',
+      rating: 5
+    },
+    {
+      name: 'Col. Rajesh Sen (Retd.)',
+      role: 'RWA Secretary',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=rajesh',
+      text: 'Instead of cluttered WhatsApp groups full of spam, Nearby HelpUp gives our society a structured, safe platform for real emergency response and neighborly help.',
+      rating: 5
     }
   ];
 
   const faqs = [
     {
-      q: 'Is Nearby HelpUp really 100% free and non-profit?',
-      category: 'Civic Charter',
-      a: 'Yes! Nearby HelpUp operates as a public-good community mesh. There are zero subscriptions, zero hidden fees, and zero paywalls. You can borrow, lend, swap skills, join local community circles, and respond to neighborhood emergencies completely free of charge.'
+      q: 'Is Nearby HelpUp completely free for neighbors?',
+      a: 'Yes, 100%. Nearby HelpUp is built as civic mutual-aid infrastructure. There are zero platform fees, zero subscription paywalls, and no commercial markups.'
     },
     {
-      q: 'How does the platform protect my privacy and physical address?',
-      category: 'Security',
-      a: 'We never broadcast your exact building or GPS coordinates. We display only generalized radius zones (e.g., 500m area) on community maps. Precise pickup arrangements are agreed upon securely through in-app encrypted chat.'
+      q: 'How does Nearby HelpUp protect my safety and privacy?',
+      a: 'We never broadcast your exact building or GPS coordinates. Listings display only a generalized neighborhood radius (e.g. 500m). Personal contact numbers are kept private and communication happens via in-app chat.'
     },
     {
-      q: 'What is the Trust Score and how is it calculated?',
-      category: 'Verification',
-      a: 'Every authenticated neighbor starts with a base Trust Score of 75. Completing government ID verification, phone verification, punctually returning borrowed items, and receiving positive peer reviews increase your score up to 100.'
+      q: 'What is the Neighbor Trust Score?',
+      a: 'Every verified member starts with a baseline score. Verifying your identity, receiving positive ratings after item returns or assistance, and timely returns increase your score up to 100.'
     },
     {
-      q: 'Can gated societies, RWAs, or university campuses use HelpUp?',
-      category: 'Community Chapters',
-      a: 'Absolutely! Our Campus & Colony Chapter charter allows resident welfare associations, universities, and co-living societies to launch a dedicated, verified community mesh with automated resident verification and asset check-out management at no cost.'
+      q: 'How does the Emergency SOS board work?',
+      a: 'Emergency requests trigger instant push alerts to responders and active helpers within your immediate 5km radius, prioritizing urgent medical and safety needs.'
     }
   ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchVal.trim()) {
-      navigate(`/login?search=${encodeURIComponent(searchVal)}`);
+      navigate(user ? `/home?search=${encodeURIComponent(searchVal)}` : `/login?search=${encodeURIComponent(searchVal)}`);
     } else {
-      navigate('/login');
+      navigate(user ? '/home' : '/login');
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 selection:bg-indigo-500/30 selection:text-indigo-900 dark:selection:text-white">
-      {/* Background Grid & Ambient Glows */}
-      <div className="fixed inset-0 bg-grid pointer-events-none opacity-40 dark:opacity-20" />
-      <div className="fixed -top-40 left-1/4 h-[500px] w-[500px] rounded-full bg-indigo-500/15 blur-[140px] pointer-events-none" />
-      <div className="fixed top-1/3 right-10 h-[450px] w-[450px] rounded-full bg-purple-500/10 blur-[150px] pointer-events-none" />
-
-      {/* Top Header Navigation */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl transition-colors">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-[#1E293B] dark:text-[#F8FAFC] font-sans antialiased selection:bg-[#19A974] selection:text-white">
+      
+      {/* Top Navigation */}
+      <header className="sticky top-0 z-50 border-b border-[#E2E8F0] dark:border-[#1E293B] bg-white/95 dark:bg-[#102A43]/95 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 text-white font-extrabold shadow-md shadow-indigo-500/25">
-              🤝
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#19A974] text-white shadow-sm shadow-[#19A974]/30 transition-transform group-hover:scale-105">
+              <Heart className="h-5 w-5 fill-white" />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-                  Nearby HelpUp
-                </span>
-                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                  v2.4 SaaS
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 font-semibold tracking-wide hidden sm:block">
-                Hyperlocal Sharing OS
+              <span className="text-base font-bold tracking-tight text-[#102A43] dark:text-white">
+                Nearby HelpUp
+              </span>
+              <span className="text-[11px] text-[#64748B] dark:text-[#9FB3C8] font-medium">
+                Hyperlocal Community Platform
               </span>
             </div>
           </Link>
 
-          {/* Center Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600 dark:text-slate-300">
-            <a href="#platform" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Platform</a>
-            <a href="#live-demo" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Live Demo</a>
-            <a href="#comparison" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Why HelpUp</a>
-            <a href="#calculator" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ROI Calculator</a>
-            <a href="#charter" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Community Charter</a>
-            <a href="#faqs" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">FAQs</a>
+          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-[#64748B] dark:text-[#D9E2EC]">
+            <a href="#how-it-works" className="hover:text-[#102A43] dark:hover:text-white transition-colors">How It Works</a>
+            <a href="#categories" className="hover:text-[#102A43] dark:hover:text-white transition-colors">Categories</a>
+            <a href="#community" className="hover:text-[#102A43] dark:hover:text-white transition-colors">Trust & Safety</a>
+            <a href="#testimonials" className="hover:text-[#102A43] dark:hover:text-white transition-colors">Testimonials</a>
+            <a href="#faqs" className="hover:text-[#102A43] dark:hover:text-white transition-colors">FAQs</a>
           </nav>
 
-          {/* Right CTAs */}
           <div className="flex items-center gap-3">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
-              title="Toggle theme"
+              className="p-2 rounded-xl text-[#64748B] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] transition-colors"
+              title="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-amber-400" /> : <Moon className="h-4.5 w-4.5 text-[#102A43]" />}
             </button>
 
-            <Link
-              to="/login"
-              className="hidden sm:inline-flex px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-colors"
-            >
-              Sign In
-            </Link>
-
-            <Link
-              to="/login"
-              className="saas-btn-primary !py-2 !px-4 !text-xs shadow-md shadow-indigo-600/30"
-            >
-              <span>{user ? 'Open Dashboard' : 'Get Started Free'}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            {user ? (
+              <Link
+                to="/home"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm transition-all"
+              >
+                <span>Dashboard</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#102A43] dark:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm shadow-[#19A974]/25 transition-all hover:-translate-y-0.5"
+                >
+                  <span>Join Neighborhood</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-24 px-6 max-w-6xl mx-auto text-center z-10">
-        {/* Release Announcement Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50/90 dark:bg-indigo-950/60 border border-indigo-200/70 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold mb-8 shadow-sm backdrop-blur-md">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
-          </span>
-          <span>⚡ HelpUp v2.4 Mesh Network is Live · 48 Neighborhoods Connected</span>
-          <ArrowRight className="h-3 w-3" />
-        </div>
+      <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-gradient-to-b from-[#19A974]/10 via-[#38BDF8]/5 to-transparent blur-3xl pointer-events-none" />
 
-        {/* Hero Title */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-950 dark:text-white max-w-5xl mx-auto leading-[1.08] font-sans">
-          The Hyperlocal Operating System for{' '}
-          <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500 bg-clip-text text-transparent">
-            Conscious Neighborhoods.
-          </span>
-        </h1>
-
-        {/* Hero Subtitle */}
-        <p className="mt-6 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-          Stop buying tools you only use twice a year. Eliminate noise from unverified WhatsApp chats. Borrow items, swap skills, and broadcast 5-minute emergency alerts with verified neighbors.
-        </p>
-
-        {/* Hero Search Bar */}
-        <form 
-          onSubmit={handleSearchSubmit}
-          className="mt-10 max-w-2xl mx-auto p-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-black/40 flex items-center gap-2"
-        >
-          <div className="flex-1 flex items-center gap-2.5 px-3">
-            <Search className="h-4 w-4 text-slate-400 shrink-0" />
-            <input
-              type="text"
-              placeholder="What do you need nearby? (e.g., Cordless drill, Camping tent, Calculus textbook...)"
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              className="w-full bg-transparent text-xs sm:text-sm text-slate-800 dark:text-white outline-none placeholder:text-slate-400 font-medium"
-            />
-          </div>
-          <button
-            type="submit"
-            className="saas-btn-primary !py-2.5 !px-5 !text-xs shrink-0"
-          >
-            <span>Search Mesh</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
-        </form>
-
-        {/* Dual CTA & Micro Social Proof */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs">
-          <Link to="/login" className="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5 hover:underline">
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-            <span>No credit card required</span>
-          </Link>
-          <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
-          <span className="text-slate-500 font-medium">Instant 60-second setup</span>
-          <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
-          <span className="text-slate-500 font-medium">Encrypted P2P coordination</span>
-        </div>
-
-        {/* Live Metrics Grid */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-slate-200/80 dark:border-slate-800/80">
-          {stats.map((s) => (
-            <div key={s.label} className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                {s.value}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto">
+            {/* Live Trust Pill */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F0FDF8] dark:bg-[#19A974]/15 border border-[#19A974]/30 text-[#19A974] text-xs font-semibold mb-6 shadow-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#19A974] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#19A974]" />
               </span>
-              <span className="mt-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {s.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Interactive SaaS Showcase Window */}
-      <section id="live-demo" className="py-20 px-6 max-w-6xl mx-auto z-10 relative">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="saas-badge mb-3">Live Interactive Preview</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Designed for Real Communities, Powered by SaaS Precision
-          </h2>
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-            Explore how the neighborhood sharing mesh, AI matchmaking engine, and emergency protocol operate in real time.
-          </p>
-        </div>
-
-        {/* Interactive MacBook / Browser Frame */}
-        <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
-          {/* Window Header */}
-          <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-950/70">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-rose-500/80" />
-              <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-              <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
-              <span className="ml-3 text-[11px] font-semibold text-slate-400 font-mono">
-                mesh.nearbyhelpup.com/console
-              </span>
+              <span>14,000+ Verified Neighbors Within 5km</span>
             </div>
 
-            {/* Interactive Tab Switcher */}
-            <div className="flex items-center gap-1 bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl">
-              <button
-                onClick={() => setActiveDemoTab('feed')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  activeDemoTab === 'feed'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                }`}
+            {/* Clear Headline as requested */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#102A43] dark:text-white tracking-tight leading-[1.15]">
+              Help Is Closer <br className="hidden sm:inline" />
+              <span className="text-[#19A974]">Than You Think.</span>
+            </h1>
+
+            {/* Supporting Text */}
+            <p className="mt-6 text-base sm:text-lg text-[#64748B] dark:text-[#9FB3C8] leading-relaxed max-w-2xl mx-auto">
+              Nearby HelpUp connects verified neighbors for instant mutual aid. Borrow daily tools, exchange skills, lend resources, and get emergency assistance right in your neighborhood.
+            </p>
+
+            {/* Prominent Action Buttons as requested */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <Link
+                to={user ? "/create-listing" : "/login"}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white bg-[#19A974] hover:bg-[#148A5E] shadow-md shadow-[#19A974]/30 transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
-                1. Resource Feed
-              </button>
-              <button
-                onClick={() => setActiveDemoTab('map')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  activeDemoTab === 'map'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                }`}
+                <span>Get Help Now</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              
+              <Link
+                to={user ? "/home" : "/login"}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white bg-[#102A43] hover:bg-[#0B1D30] shadow-md shadow-[#102A43]/20 transition-all hover:-translate-y-0.5 active:translate-y-0 border border-[#243E63]"
               >
-                2. Mesh Map
-              </button>
-              <button
-                onClick={() => setActiveDemoTab('ai')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  activeDemoTab === 'ai'
-                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                }`}
-              >
-                3. AI Matcher
-              </button>
-              <button
-                onClick={() => setActiveDemoTab('emergency')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  activeDemoTab === 'emergency'
-                    ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                }`}
-              >
-                4. Emergency Beacon
-              </button>
+                <Heart className="h-4 w-4 text-[#19A974]" />
+                <span>Become a Helper</span>
+              </Link>
+            </div>
+
+            {/* Fast Neighborhood Search Bar */}
+            <div className="mt-10 max-w-xl mx-auto">
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center shadow-md rounded-2xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] p-1.5 transition-all focus-within:border-[#19A974] focus-within:ring-2 focus-within:ring-[#19A974]/20">
+                <Search className="ml-3 h-5 w-5 text-[#94A3B8]" />
+                <input
+                  type="text"
+                  placeholder="Need a ladder, drill, blood donor, tutor, or wheelchair?"
+                  value={searchVal}
+                  onChange={(e) => setSearchVal(e.target.value)}
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-transparent outline-none text-[#1E293B] dark:text-white placeholder-[#94A3B8]"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 rounded-xl bg-[#19A974] hover:bg-[#148A5E] text-white text-xs font-bold transition-colors shrink-0"
+                >
+                  Search
+                </button>
+              </form>
             </div>
           </div>
 
-          {/* Interactive Window Content Body */}
-          <div className="p-6 sm:p-8 min-h-[380px] bg-slate-50/40 dark:bg-slate-950/40">
-            {activeDemoTab === 'feed' && (
-              <div className="grid sm:grid-cols-3 gap-5 animate-fade-in">
-                {[
-                  {
-                    title: 'Bosch 18V Cordless Drill & Bit Set',
-                    owner: 'Arjun Verma',
-                    trust: 98,
-                    distance: '0.4 km away',
-                    type: 'Borrow',
-                    category: 'Tools',
-                    badge: 'Instant Confirm'
-                  },
-                  {
-                    title: 'Sony Alpha 4K Video Gimbal Stabilizer',
-                    owner: 'Priya Mehta',
-                    trust: 95,
-                    distance: '1.2 km away',
-                    type: 'Lend',
-                    category: 'Electronics',
-                    badge: 'Zero Deposit'
-                  },
-                  {
-                    title: 'Calculus & Linear Algebra 4th Edition',
-                    owner: 'Rohit K.',
-                    trust: 91,
-                    distance: '0.8 km away',
-                    type: 'Barter',
-                    category: 'Books',
-                    badge: 'DTU Student'
-                  }
-                ].map((item, i) => (
-                  <div key={i} className="saas-card rounded-2xl p-5 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                          {item.category}
-                        </span>
-                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                          {item.badge}
-                        </span>
-                      </div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                        {item.title}
-                      </h4>
-                      <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                        <span>👤 {item.owner}</span>
-                        <span className="font-bold text-indigo-600 dark:text-indigo-400">Trust: {item.trust}</span>
-                      </div>
-                    </div>
-                    <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                      <span className="text-[10px] font-semibold text-slate-400">📍 {item.distance}</span>
-                      <button
-                        onClick={() => navigate('/login')}
-                        className="saas-btn-primary !py-1 !px-3 !text-[11px]"
-                      >
-                        Request
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeDemoTab === 'map' && (
-              <div className="relative h-80 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center animate-fade-in">
-                {/* Simulated Radar Mesh */}
-                <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:16px_16px]" />
-                <div className="absolute h-64 w-64 rounded-full border border-dashed border-indigo-500/30 bg-indigo-500/5 animate-pulse" />
-                <div className="absolute h-40 w-40 rounded-full border border-indigo-500/40 bg-indigo-500/10" />
-                
-                {/* Center User Node */}
-                <div className="relative flex flex-col items-center z-10">
-                  <div className="h-5 w-5 rounded-full bg-indigo-500 border-2 border-white shadow-lg shadow-indigo-500/50 flex items-center justify-center text-[10px] text-white font-bold">
-                    You
-                  </div>
-                  <span className="mt-1 text-[10px] font-mono text-indigo-300 font-bold bg-slate-950/80 px-2 py-0.5 rounded-full border border-indigo-500/30">
-                    Rohini Sector 16 Mesh (5km)
-                  </span>
+          {/* Stats Grid */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {stats.map((item) => (
+              <div 
+                key={item.label}
+                className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 shadow-xs text-center"
+              >
+                <div className="text-2xl sm:text-3xl font-extrabold text-[#102A43] dark:text-white">
+                  {item.value}
                 </div>
-
-                {/* Neighbor Nodes */}
-                <div className="absolute top-12 left-20 flex flex-col items-center">
-                  <span className="bg-emerald-600 text-white font-bold text-[9px] px-2 py-0.5 rounded-full shadow">
-                    🔨 Tool Set (250m)
-                  </span>
-                  <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white mt-1" />
+                <div className="text-xs font-semibold text-[#1E293B] dark:text-[#F8FAFC] mt-1">
+                  {item.label}
                 </div>
-
-                <div className="absolute bottom-12 right-24 flex flex-col items-center">
-                  <span className="bg-indigo-600 text-white font-bold text-[9px] px-2 py-0.5 rounded-full shadow">
-                    💻 MacBook Charger (400m)
-                  </span>
-                  <div className="h-3.5 w-3.5 rounded-full bg-indigo-500 border-2 border-white mt-1" />
-                </div>
-
-                <div className="absolute top-16 right-20 flex flex-col items-center">
-                  <span className="bg-rose-600 text-white font-bold text-[9px] px-2 py-0.5 rounded-full shadow animate-bounce">
-                    🚨 Emergency Oxygen (800m)
-                  </span>
-                  <div className="h-3.5 w-3.5 rounded-full bg-rose-500 border-2 border-white mt-1" />
+                <div className="text-[11px] text-[#19A974] font-medium mt-0.5">
+                  {item.tag}
                 </div>
               </div>
-            )}
-
-            {activeDemoTab === 'ai' && (
-              <div className="max-w-xl mx-auto flex flex-col gap-4 animate-fade-in">
-                <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 flex items-start gap-3">
-                  <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                  <div>
-                    <div className="text-xs font-bold text-indigo-950 dark:text-indigo-200">
-                      Query: "I need a high-lumen projector for outdoor screening tonight at 7 PM"
-                    </div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                      AI Parser extracted: Category: Electronics · Sub: Projector · Urgency: Tonight · Range: 3 km
-                    </div>
-                  </div>
-                </div>
-
-                <div className="saas-card rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-emerald-500">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">📽️</span>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white">
-                        Epson 3800 Lumen HD Projector + HDMI
-                      </div>
-                      <div className="text-[11px] text-slate-400">
-                        Owner: Vikram R. (350m away) · Trust Score: 99 · Response in 2 mins
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-xl">
-                    99% Match
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {activeDemoTab === 'emergency' && (
-              <div className="max-w-xl mx-auto flex flex-col gap-4 animate-fade-in">
-                <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3.5">
-                  <AlertOctagon className="h-6 w-6 text-rose-500 shrink-0 mt-0.5" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
-                        Live Neighborhood Broadcast #849
-                      </span>
-                      <span className="px-1.5 py-0.2 rounded bg-rose-500 text-white text-[9px] font-bold">
-                        CRITICAL
-                      </span>
-                    </div>
-                    <h4 className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                      Urgent Need: Portable Oxygen Concentrator or O2 Canister
-                    </h4>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Elderly patient in Pocket C, Sector 16. Power line disrupted for next 2 hours. Delivery vehicle stuck.
-                    </p>
-                    <div className="mt-3 flex items-center gap-4 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                      <span>Broadcast Radius: 5 km</span>
-                      <span>·</span>
-                      <span>142 Neighbors Notified</span>
-                      <span>·</span>
-                      <span className="text-emerald-500 font-bold">2 Responses Arrived</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            ))}
           </div>
         </div>
       </section>
 
-      {/* "Why HelpUp vs The Old Way" Comparison Matrix */}
-      <section id="comparison" className="py-20 px-6 max-w-6xl mx-auto z-10 relative">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="saas-badge mb-3">Competitive Advantage</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Why Modern Neighborhoods Choose HelpUp
-          </h2>
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-            Compare HelpUp with chaotic messaging apps, unverified classifieds, and unnecessary consumer spending.
-          </p>
-        </div>
-
-        {/* Comparison Table */}
-        <div className="overflow-x-auto rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70">
-                <th className="py-4 px-6 font-bold text-slate-500 uppercase tracking-wider text-[11px]">Feature</th>
-                <th className="py-4 px-4 font-bold text-slate-400 text-[11px]">WhatsApp / Telegram</th>
-                <th className="py-4 px-4 font-bold text-slate-400 text-[11px]">Craigslist / FB Marketplace</th>
-                <th className="py-4 px-6 font-extrabold text-indigo-600 dark:text-indigo-400 text-[12px] bg-indigo-50/50 dark:bg-indigo-950/30">
-                  Nearby HelpUp
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-              {comparisonRows.map((row, i) => (
-                <tr key={i} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
-                  <td className="py-4 px-6 font-semibold text-slate-900 dark:text-white">
-                    {row.feature}
-                  </td>
-                  <td className="py-4 px-4 text-slate-500 font-medium">
-                    {row.whatsapp}
-                  </td>
-                  <td className="py-4 px-4 text-slate-500 font-medium">
-                    {row.facebook}
-                  </td>
-                  <td className="py-4 px-6 font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20">
-                    {row.helpup}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Interactive Neighborhood Savings & Carbon Calculator */}
-      <section id="calculator" className="py-20 px-6 max-w-5xl mx-auto z-10 relative">
-        <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 text-white shadow-2xl relative overflow-hidden border border-indigo-500/20">
-          <div className="max-w-2xl">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-500/40">
-              Interactive ROI & Ecological Impact
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 bg-white dark:bg-[#102A43]/50 border-y border-[#E2E8F0] dark:border-[#1A365D]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#19A974] bg-[#F0FDF8] dark:bg-[#19A974]/15 px-3 py-1 rounded-full">
+              Simple & Reliable
             </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight font-sans">
-              See How Much Your Household Saves
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102A43] dark:text-white mt-3">
+              How Nearby HelpUp Works
             </h2>
-            <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-              Calculate your annual cash savings and carbon emission reduction by borrowing instead of purchasing rarely used tools and gear.
+            <p className="text-sm text-[#64748B] dark:text-[#9FB3C8] mt-2">
+              Get assistance or lend a hand in four straightforward steps with full privacy and trust safeguards.
             </p>
           </div>
 
-          <div className="mt-10 grid md:grid-cols-2 gap-8 items-center">
-            {/* Interactive Sliders */}
-            <div className="flex flex-col gap-6">
-              <div>
-                <div className="flex items-center justify-between text-xs font-bold mb-2">
-                  <span>Items Borrowed or Shared per Month</span>
-                  <span className="text-base text-amber-400 font-extrabold">{borrowCount} items</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="15"
-                  value={borrowCount}
-                  onChange={(e) => setBorrowCount(Number(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between text-xs font-bold mb-2">
-                  <span>Average Retail Price of Item</span>
-                  <span className="text-base text-amber-400 font-extrabold">${itemAvgCost}</span>
-                </div>
-                <input
-                  type="range"
-                  min="20"
-                  max="250"
-                  step="5"
-                  value={itemAvgCost}
-                  onChange={(e) => setItemAvgCost(Number(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
-            {/* Live Outputs */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col justify-center">
-                <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                  <DollarSign className="h-4 w-4" />
-                  <span>Annual Savings</span>
-                </div>
-                <span className="mt-2 text-3xl font-extrabold text-white tracking-tight">
-                  ${calculatedSavings.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-300 mt-0.5">Kept in your pocket</span>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex flex-col justify-center">
-                <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-wider">
-                  <Leaf className="h-4 w-4" />
-                  <span>Carbon Avoided</span>
-                </div>
-                <span className="mt-2 text-3xl font-extrabold text-white tracking-tight">
-                  {calculatedCarbon} kg
-                </span>
-                <span className="text-[10px] text-slate-300 mt-0.5">CO2 emissions prevented</span>
-              </div>
-
-              <div className="col-span-2 p-4 rounded-2xl bg-indigo-500/20 backdrop-blur-md border border-indigo-400/20 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-indigo-200">Neighborhood Trust Capital</div>
-                  <div className="text-xs text-white mt-0.5">
-                    Est. <strong>{calculatedConnections} high-trust local connections</strong> built per year.
+          <div className="grid md:grid-cols-4 gap-6">
+            {howItWorksSteps.map((s) => {
+              const Icon = s.icon;
+              return (
+                <div 
+                  key={s.step}
+                  className="bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 relative flex flex-col justify-between hover:shadow-md transition-all hover:-translate-y-1"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="h-10 w-10 rounded-xl bg-[#19A974]/15 text-[#19A974] flex items-center justify-center font-bold">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-2xl font-black text-[#CBD5E1] dark:text-[#475569]">
+                        {s.step}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-[#102A43] dark:text-white mb-2">
+                      {s.title}
+                    </h3>
+                    <p className="text-xs text-[#64748B] dark:text-[#9FB3C8] leading-relaxed">
+                      {s.desc}
+                    </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => navigate('/login')}
-                  className="saas-btn-primary !py-2 !px-4 !text-xs !bg-white !text-slate-900 shrink-0"
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Assistance Categories */}
+      <section id="categories" className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#19A974]">
+                Explore By Need
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102A43] dark:text-white mt-1">
+                Popular Assistance Categories
+              </h2>
+            </div>
+            <Link
+              to={user ? "/home" : "/login"}
+              className="mt-3 sm:mt-0 text-xs font-bold text-[#19A974] hover:text-[#148A5E] flex items-center gap-1"
+            >
+              <span>View all categories</span>
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <div
+                  key={cat.id}
+                  onClick={() => navigate(user ? `/home?search=${encodeURIComponent(cat.name)}` : `/login?search=${encodeURIComponent(cat.name)}`)}
+                  className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 hover:shadow-md hover:border-[#19A974]/50 transition-all cursor-pointer group"
                 >
-                  Start Saving
-                </button>
-              </div>
-            </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-10 w-10 rounded-xl bg-[#F0FDF8] dark:bg-[#19A974]/20 text-[#19A974] flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#19A974] bg-[#F0FDF8] dark:bg-[#19A974]/15 px-2 py-0.5 rounded-full">
+                      {cat.count}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#102A43] dark:text-white group-hover:text-[#19A974] transition-colors">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#9FB3C8] mt-1 leading-relaxed">
+                    {cat.desc}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 100% Non-Profit Community Charter & Roles Section */}
-      <section id="charter" className="py-20 px-6 max-w-6xl mx-auto z-10 relative">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="saas-badge mb-3">100% Non-Profit · Public Good</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Community Roles & Open Charter
-          </h2>
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-            Nearby HelpUp is free public-good software. There are no fees, subscriptions, or paywalls. All community privileges and badges are earned through trust, mutual aid, and active volunteering.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Role 1: Community Neighbor */}
-          <div className="saas-card rounded-3xl p-7 flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                100% Free Forever
-              </span>
-              <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white font-sans">
-                Community Neighbor
-              </h3>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed min-h-[36px]">
-                Essential sharing and mutual aid for everyday residents and conscious neighbors.
-              </p>
-              <div className="mt-4 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Free Forever</span>
-                <span className="text-xs text-slate-400">· Non-profit</span>
-              </div>
-              <ul className="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>5 km Hyperlocal Mesh Radius</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Unlimited item borrowing & listings</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Public neighborhood chats & skill clubs</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Standard 24/7 emergency broadcasts</span>
-                </li>
-              </ul>
-            </div>
-            <button
-              onClick={() => navigate('/login')}
-              className="mt-8 saas-btn-secondary w-full"
-            >
-              Join Neighborhood Free
-            </button>
+      {/* Live Community Feed Preview */}
+      <section className="py-20 bg-white dark:bg-[#102A43]/40 border-y border-[#E2E8F0] dark:border-[#1A365D]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
+              Live 5km Radar
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102A43] dark:text-white mt-1">
+              Active Neighbor Requests
+            </h2>
+            <p className="text-sm text-[#64748B] dark:text-[#9FB3C8] mt-2">
+              Real-time needs and offers shared by verified residents in nearby sectors.
+            </p>
           </div>
 
-          {/* Role 2: Verified Volunteer & First Responder */}
-          <div className="relative rounded-3xl p-7 bg-gradient-to-b from-indigo-50/70 to-emerald-50/40 dark:from-indigo-950/40 dark:to-slate-900 border-2 border-indigo-500 shadow-xl shadow-indigo-500/10 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-600 text-white">
-                  Earned by Trust & Help
-                </span>
-              </div>
-              <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white font-sans">
-                Volunteer & First Responder
-              </h3>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed min-h-[36px]">
-                High-trust neighbors ready to help during urgent medical needs, power outages, and emergencies.
-              </p>
-              <div className="mt-4 pb-4 border-b border-indigo-200/50 dark:border-indigo-800/50 flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Earned Status</span>
-                <span className="text-xs text-slate-400">· Trust score 85+</span>
-              </div>
-              <ul className="mt-5 space-y-2.5 text-xs text-slate-700 dark:text-slate-200 font-medium">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>25 km Extended Citywide Mesh Beacon</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Priority Emergency Alert Dispatch (SMS & Pin)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Zero-Deposit Trust Guarantee Privilege</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Verified Volunteer Community Gold Badge</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-indigo-600 font-bold" />
-                  <span>Direct emergency responder coordination channel</span>
-                </li>
-              </ul>
-            </div>
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="mt-8 saas-btn-primary w-full shadow-lg shadow-indigo-600/30"
-            >
-              <span>Pledge as Volunteer</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Role 3: Colony & Campus Chapter */}
-          <div className="saas-card rounded-3xl p-7 flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                Open Society Deployment
-              </span>
-              <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white font-sans">
-                Colony & Campus Chapters
-              </h3>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed min-h-[36px]">
-                For residential welfare associations (RWAs), university campuses, and local societies.
-              </p>
-              <div className="mt-4 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-baseline gap-1.5">
-                <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Free Open Setup</span>
-                <span className="text-xs text-slate-400">· Zero commercial cost</span>
-              </div>
-              <ul className="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Dedicated Private Colony or Campus Domain</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Resident roster synchronization & auto-ID checks</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Admin Incident Moderation Dashboard</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span>Tool Shed & Shared Asset Inventory Kiosk</span>
-                </li>
-              </ul>
-            </div>
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="mt-8 saas-btn-secondary w-full"
-            >
-              Register Community Chapter
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQs Accordion */}
-      <section id="faqs" className="py-20 px-6 max-w-4xl mx-auto z-10 relative">
-        <div className="text-center max-w-xl mx-auto mb-12">
-          <span className="saas-badge mb-3">Questions & Answers</span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
-            Frequently Asked Questions
-          </h2>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Everything you need to know about safety, lending rules, and community creation.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 overflow-hidden transition-all shadow-sm"
-            >
-              <button
-                type="button"
-                onClick={() => setFaqOpen(faqOpen === i ? null : i)}
-                className="w-full text-left px-6 py-4 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800 dark:text-white outline-none"
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {featuredRequests.map((item) => (
+              <div 
+                key={item.id}
+                className="bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl overflow-hidden hover:shadow-md transition-all flex flex-col justify-between"
               >
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[9px] px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-extrabold uppercase">
-                    {faq.category}
-                  </span>
-                  <span>{faq.q}</span>
+                <div>
+                  <div className="relative h-44 w-full overflow-hidden bg-slate-100">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105" 
+                    />
+                    <div className="absolute top-2.5 left-2.5">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#102A43]/90 text-white shadow-xs">
+                        {item.type}
+                      </span>
+                    </div>
+                    <div className="absolute top-2.5 right-2.5">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-[#102A43] shadow-xs">
+                        {item.distance}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#19A974]">
+                      {item.category}
+                    </span>
+                    <h4 className="text-xs font-bold text-[#102A43] dark:text-white mt-1 line-clamp-2">
+                      {item.title}
+                    </h4>
+                  </div>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${faqOpen === i ? 'rotate-180' : ''}`} />
-              </button>
-              {faqOpen === i && (
-                <div className="px-6 pb-5 pt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800 animate-fade-in">
-                  {faq.a}
+
+                <div className="p-4 pt-0 border-t border-[#E2E8F0] dark:border-[#334155] mt-2 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1 text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8]">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#19A974]" />
+                    <span>{item.trustScore}% Trust</span>
+                  </div>
+                  <Link
+                    to={user ? `/listing/${item.id}` : "/login"}
+                    className="text-[11px] font-bold text-[#19A974] hover:underline"
+                  >
+                    View Details
+                  </Link>
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              to={user ? "/home" : "/login"}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-xs text-white bg-[#102A43] hover:bg-[#0B1D30] transition-colors"
+            >
+              <span>Explore All Nearby Requests</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Enterprise SaaS Footer */}
-      <footer className="border-t border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-950 py-12 px-6 transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🤝</span>
-            <div>
-              <span className="font-extrabold tracking-tight text-slate-900 dark:text-white text-sm">
-                Nearby HelpUp Ecosystem
-              </span>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono">
-                  All Systems Operational · 99.98% Uptime
-                </span>
+      {/* Testimonials */}
+      <section id="testimonials" className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#19A974]">
+              Community Voices
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#102A43] dark:text-white mt-1">
+              Trusted by 14,000+ Neighbors
+            </h2>
+            <p className="text-sm text-[#64748B] dark:text-[#9FB3C8] mt-2">
+              See how verified neighbors are creating safer, more resourceful neighborhoods.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((t, idx) => (
+              <div 
+                key={idx}
+                className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 shadow-xs flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-1 text-amber-400 mb-4">
+                    {[...Array(t.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#1E293B] dark:text-[#D9E2EC] leading-relaxed italic">
+                    "{t.text}"
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 mt-6 pt-4 border-t border-[#E2E8F0] dark:border-[#334155]">
+                  <img 
+                    src={t.avatar} 
+                    alt={t.name}
+                    className="h-9 w-9 rounded-full object-cover ring-1 ring-[#19A974]" 
+                  />
+                  <div>
+                    <h5 className="text-xs font-bold text-[#102A43] dark:text-white">
+                      {t.name}
+                    </h5>
+                    <p className="text-[11px] text-[#64748B] dark:text-[#9FB3C8]">
+                      {t.role}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-
-          <div className="flex flex-wrap gap-4 sm:gap-6 text-[11px] font-bold text-slate-500 dark:text-slate-400">
-            <a href="#platform" className="hover:text-indigo-600 transition-colors">Security Architecture</a>
-            <a href="#calculator" className="hover:text-indigo-600 transition-colors">Impact Analytics</a>
-            <a href="#charter" className="hover:text-indigo-600 transition-colors">Community Charter</a>
-            <Link to="/terms" className="hover:text-indigo-600 transition-colors text-indigo-600 dark:text-indigo-400 font-bold underline decoration-indigo-300 dark:decoration-indigo-700 underline-offset-4">Terms & Conditions</Link>
-            <Link to="/login" className="hover:text-indigo-600 transition-colors">Privacy Shield</Link>
-          </div>
-
-          <p className="text-[10px] font-semibold text-slate-400">
-            &copy; {new Date().getFullYear()} Nearby HelpUp Civic Mesh. A 100% Non-Profit Community Initiative.
-          </p>
         </div>
-      </footer>
+      </section>
 
-      {/* Upgrade Modal */}
-      <SaaSUpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-      />
+      {/* FAQs */}
+      <section id="faqs" className="py-20 bg-white dark:bg-[#102A43]/30 border-t border-[#E2E8F0] dark:border-[#1A365D]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#19A974]">
+              Got Questions?
+            </span>
+            <h2 className="text-3xl font-extrabold text-[#102A43] dark:text-white mt-1">
+              Frequently Asked Questions
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {faqs.map((faq, idx) => (
+              <div 
+                key={idx}
+                className="bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-xl overflow-hidden transition-colors"
+              >
+                <button
+                  type="button"
+                  onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
+                  className="w-full flex items-center justify-between p-4 text-left text-xs sm:text-sm font-bold text-[#102A43] dark:text-white"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`h-4 w-4 text-[#64748B] transition-transform ${faqOpen === idx ? 'rotate-180 text-[#19A974]' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {faqOpen === idx && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="px-4 pb-4 text-xs text-[#64748B] dark:text-[#9FB3C8] leading-relaxed border-t border-[#E2E8F0] dark:border-[#334155]/60 pt-3"
+                    >
+                      {faq.a}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA Banner */}
+      <section className="py-20 bg-gradient-to-r from-[#102A43] via-[#1A365D] to-[#102A43] text-white text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#38BDF8] text-xs font-semibold mb-4">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Join Your Neighborhood Network</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Ready to Connect with Helpers Nearby?
+          </h2>
+          <p className="mt-3 text-sm text-[#D9E2EC] max-w-xl mx-auto">
+            Get instant assistance for daily needs or lend your tools and skills to build a more resilient neighborhood.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/login"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm text-white bg-[#19A974] hover:bg-[#148A5E] shadow-lg shadow-[#19A974]/30 transition-all hover:-translate-y-0.5"
+            >
+              Get Started for Free
+            </Link>
+            <Link
+              to="/emergency"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm text-[#EF4444] bg-white hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              <span>Emergency Radar</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <AppFooter />
     </div>
   );
 };

@@ -11,17 +11,16 @@ import {
   LogOut, 
   Sun, 
   Moon, 
-  Activity,
   Users,
   Calendar,
-  Sparkles,
   Heart,
   ChevronRight,
   ShieldCheck,
   Scale,
-  FileText
+  Compass,
+  Radio
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SaaSUpgradeModal } from '../common/SaaSUpgradeModal';
 
 export const Sidebar: React.FC = () => {
@@ -30,38 +29,25 @@ export const Sidebar: React.FC = () => {
   const location = useLocation();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const currentRole = localStorage.getItem('helpup_community_role') || 'Community Neighbor';
+  const currentRole = localStorage.getItem('helpup_community_role') || 'Verified Helper';
 
   const mainMenuItems = [
     { name: 'Dashboard', path: '/home', icon: Home },
     { name: 'Communities', path: '/communities', icon: Users },
     { name: 'Local Events', path: '/events', icon: Calendar },
-    { name: 'Emergency Mesh', path: '/emergency', icon: AlertTriangle, badge: 'Live' },
+    { name: 'Emergency SOS', path: '/emergency', icon: AlertTriangle, badge: 'Live' },
   ];
 
   const collabMenuItems = [
-    { name: 'Chat Room', path: '/chat', icon: MessageSquare },
+    { name: 'Messages & Chat', path: '/chat', icon: MessageSquare },
     { name: 'My Profile', path: `/profile/${user?.id || ''}`, icon: UserIcon },
-    { name: 'Terms & Conditions', path: '/terms', icon: Scale },
+    { name: 'Community Terms', path: '/terms', icon: Scale },
   ];
 
   const isAdmin = user?.username?.toLowerCase() === 'admin' || user?.id === 1;
 
   const isActive = (path: string) => {
-    return location.pathname.startsWith(path);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.04 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -15 },
-    show: { opacity: 1, x: 0, transition: { type: "spring" as const, stiffness: 350, damping: 24 } }
+    return location.pathname === path || (path !== '/home' && location.pathname.startsWith(path));
   };
 
   return (
@@ -69,90 +55,88 @@ export const Sidebar: React.FC = () => {
       <motion.aside 
         initial={{ x: -280 }}
         animate={{ x: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="fixed left-0 top-0 hidden h-screen w-64 border-r border-slate-200/80 bg-white/80 glass-panel p-5 dark:border-slate-800/80 dark:bg-slate-950/80 md:flex md:flex-col justify-between z-30 overflow-y-auto"
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="fixed left-0 top-0 hidden min-h-[100dvh] h-[100dvh] w-64 border-r border-[#1A365D] bg-[#102A43] p-5 md:flex md:flex-col justify-between z-30 overflow-y-auto text-white shadow-lg"
       >
         <div className="flex flex-col gap-6">
-          {/* Brand Logo & SaaS Workspace Pill */}
+          {/* Brand Logo Header */}
           <div className="flex flex-col gap-2.5">
             <Link to="/home" className="flex items-center gap-2.5 cursor-pointer group">
-              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 text-white font-extrabold shadow-md shadow-indigo-500/25">
-                🤝
-                <div className="absolute inset-0 rounded-xl bg-indigo-400 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-60" />
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#19A974] text-white font-extrabold shadow-md shadow-[#19A974]/30 transition-transform group-hover:scale-105">
+                <Heart className="h-5 w-5 fill-white" />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
+                  <span className="text-base font-bold tracking-tight text-white">
                     Nearby HelpUp
                   </span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">
-                    SaaS
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#19A974]/20 text-[#19A974] border border-[#19A974]/40">
+                    Pro
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-semibold tracking-wide">
-                  Hyperlocal Sharing OS
+                <span className="text-[11px] text-[#9FB3C8] font-medium tracking-tight">
+                  Mutual Aid & Sharing
                 </span>
               </div>
             </Link>
 
-            {/* Active Workspace Node */}
-            <div className="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between">
+            {/* Active Neighborhood Node */}
+            <div className="p-2.5 rounded-xl bg-[#1A365D]/80 border border-[#38BDF8]/20 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#38BDF8] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#38BDF8]" />
                 </span>
-                <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">
-                  {user?.location_name ? user.location_name.split(',')[0] : 'Downtown Rohini'}
+                <span className="text-[11px] font-medium text-[#F0F4F8] truncate">
+                  {user?.location_name ? user.location_name.split(',')[0] : 'DTU Campus, Rohini'}
                 </span>
               </div>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
-                5km Mesh
+              <span className="text-[9px] font-bold text-[#38BDF8] bg-[#38BDF8]/15 border border-[#38BDF8]/30 px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
+                5km Radius
               </span>
             </div>
           </div>
 
           {/* Navigation Groups */}
           <div className="flex flex-col gap-5">
-            {/* Group 1: Core Platform */}
+            {/* Core Assistance */}
             <div className="flex flex-col gap-1">
-              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+              <span className="px-3 text-[10px] font-bold text-[#829AB1] uppercase tracking-wider mb-1">
                 Platform
               </span>
-              <motion.nav variants={containerVariants} initial="hidden" animate="show" className="flex flex-col gap-1">
+              <nav className="flex flex-col gap-1">
                 {mainMenuItems.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.path);
                   return (
-                    <motion.div key={item.name} variants={itemVariants}>
-                      <Link
-                        to={item.path}
-                        className={`group relative flex items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 z-10 ${
-                          active
-                            ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/40'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-900/40'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className={`h-4 w-4 ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`} />
-                          <span>{item.name}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    </motion.div>
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className={`group relative flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all duration-200 ${
+                        active
+                          ? 'text-white bg-[#19A974] shadow-sm shadow-[#19A974]/30'
+                          : 'text-[#D9E2EC] hover:text-white hover:bg-[#1A365D]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`h-4 w-4 ${active ? 'text-white' : 'text-[#9FB3C8] group-hover:text-white'}`} />
+                        <span>{item.name}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="rounded-full bg-[#EF4444] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
                   );
                 })}
-              </motion.nav>
+              </nav>
             </div>
 
-            {/* Group 2: Collaboration */}
+            {/* Collaboration & Community */}
             <div className="flex flex-col gap-1">
-              <span className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                Collaboration
+              <span className="px-3 text-[10px] font-bold text-[#829AB1] uppercase tracking-wider mb-1">
+                Community
               </span>
               <div className="flex flex-col gap-1">
                 {collabMenuItems.map((item) => {
@@ -162,14 +146,14 @@ export const Sidebar: React.FC = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`group relative flex items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 ${
+                      className={`group relative flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all duration-200 ${
                         active
-                          ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/40'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-900/40'
+                          ? 'text-white bg-[#19A974] shadow-sm shadow-[#19A974]/30'
+                          : 'text-[#D9E2EC] hover:text-white hover:bg-[#1A365D]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon className={`h-4 w-4 ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`} />
+                        <Icon className={`h-4 w-4 ${active ? 'text-white' : 'text-[#9FB3C8] group-hover:text-white'}`} />
                         <span>{item.name}</span>
                       </div>
                     </Link>
@@ -179,14 +163,14 @@ export const Sidebar: React.FC = () => {
                 {isAdmin && (
                   <Link
                     to="/admin"
-                    className={`group relative flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 mt-1 ${
+                    className={`group relative flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all duration-200 mt-1 ${
                       isActive('/admin')
-                        ? 'bg-rose-50/80 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200/50 dark:border-rose-800/40'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-900/40'
+                        ? 'bg-[#EF4444] text-white'
+                        : 'text-[#D9E2EC] hover:text-white hover:bg-[#1A365D]'
                     }`}
                   >
-                    <ShieldAlert className="h-4 w-4 text-rose-500" />
-                    <span>Admin Console</span>
+                    <ShieldAlert className="h-4 w-4 text-[#EF4444] group-hover:text-white" />
+                    <span>Admin Safety Panel</span>
                   </Link>
                 )}
               </div>
@@ -194,29 +178,29 @@ export const Sidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer Area: Community Standing Card & User Profile */}
-        <div className="flex flex-col gap-3 pt-4 border-t border-slate-200/70 dark:border-slate-800/70">
-          {/* Non-Profit Community Standing Card */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/50 dark:from-slate-900 dark:via-emerald-950/20 dark:to-slate-900 border border-emerald-100 dark:border-slate-800 flex flex-col gap-2.5 shadow-sm">
+        {/* Footer Area: Community Impact Card & User Profile */}
+        <div className="flex flex-col gap-3 pt-4 border-t border-[#1A365D]">
+          {/* Community Standing Card */}
+          <div className="p-3.5 rounded-xl bg-[#1A365D]/70 border border-[#243E63] flex flex-col gap-2 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <Heart className="h-3 w-3 text-emerald-500 fill-emerald-500/20" />
-                <span>100% Non-Profit</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#19A974] flex items-center gap-1">
+                <Heart className="h-3 w-3 fill-[#19A974]" />
+                <span>100% Free Mutual Aid</span>
               </span>
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-md">
-                Open Mesh
+              <span className="text-[9px] font-bold text-[#38BDF8] bg-[#38BDF8]/15 px-1.5 py-0.5 rounded">
+                Verified
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
-              <span className="font-semibold text-[11px] truncate">{currentRole}</span>
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Civic Good</span>
+            <div className="flex items-center justify-between text-xs text-[#D9E2EC]">
+              <span className="font-medium text-[11px] truncate">{currentRole}</span>
+              <span className="text-[10px] font-bold text-[#19A974]">Level 3</span>
             </div>
 
             <button
               type="button"
               onClick={() => setShowUpgradeModal(true)}
-              className="mt-0.5 w-full py-1.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/25"
+              className="mt-0.5 w-full py-1.5 px-2 rounded-lg bg-[#19A974] hover:bg-[#148A5E] text-white font-semibold text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"
             >
               <span>Community Charter</span>
               <ChevronRight className="h-3 w-3" />
@@ -225,39 +209,39 @@ export const Sidebar: React.FC = () => {
 
           {/* User Profile Card */}
           {user && (
-            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50">
+            <div className="flex items-center justify-between p-2 rounded-xl bg-[#1A365D]/90 border border-[#243E63]">
               <Link to={`/profile/${user.id}`} className="flex items-center gap-2.5 min-w-0">
                 <div className="relative">
                   <img
                     src={user.profile_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
                     alt={user.name}
-                    className="h-8 w-8 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-700"
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-[#19A974]"
                   />
-                  <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border border-white dark:border-slate-900" />
+                  <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#19A974] border-2 border-[#102A43]" />
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-bold text-slate-800 dark:text-white truncate leading-tight">
+                  <span className="text-xs font-bold text-white truncate leading-tight">
                     {user.name}
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1">
-                    <ShieldCheck className="h-2.5 w-2.5 text-indigo-500" />
-                    <span>Score: {Math.round(user.trust_score || 85)}</span>
+                  <span className="text-[10px] text-[#9FB3C8] font-medium flex items-center gap-1">
+                    <ShieldCheck className="h-2.5 w-2.5 text-[#19A974]" />
+                    <span>Trust: {Math.round(user.trust_score || 95)}%</span>
                   </span>
                 </div>
               </Link>
 
-              {/* Theme & Signout Actions */}
+              {/* Theme & Signout */}
               <div className="flex items-center gap-1">
                 <button
                   onClick={toggleTheme}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
-                  title="Toggle Dark/Light"
+                  className="p-1.5 rounded-lg text-[#9FB3C8] hover:text-white hover:bg-[#243E63] transition-colors"
+                  title="Toggle Light/Dark Theme"
                 >
                   {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
                 </button>
                 <button
                   onClick={logout}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  className="p-1.5 rounded-lg text-[#9FB3C8] hover:text-[#EF4444] hover:bg-[#EF4444]/15 transition-colors"
                   title="Sign Out"
                 >
                   <LogOut className="h-3.5 w-3.5" />
@@ -268,7 +252,6 @@ export const Sidebar: React.FC = () => {
         </div>
       </motion.aside>
 
-      {/* SaaS Upgrade Modal */}
       <SaaSUpgradeModal 
         isOpen={showUpgradeModal} 
         onClose={() => setShowUpgradeModal(false)} 

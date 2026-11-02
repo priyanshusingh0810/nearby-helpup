@@ -6,21 +6,19 @@ import {
   Search, 
   Menu, 
   X, 
-  ArrowRight, 
   Plus, 
   Sparkles, 
-  AlertTriangle, 
-  Package, 
-  HelpCircle,
-  ChevronDown,
-  Command,
+  ChevronDown, 
   CheckCheck,
-  Heart
+  Heart,
+  Sun,
+  Moon,
+  MessageSquare
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SaaSUpgradeModal } from '../common/SaaSUpgradeModal';
+import { useTheme } from '../../context/ThemeContext';
 
 interface NavbarProps {
   onSearch?: (query: string) => void;
@@ -29,18 +27,15 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onSearch, onMobileMenuToggle }) => {
   const { user, updateUserCoords } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [searchVal, setSearchVal] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLocationMenu, setShowLocationMenu] = useState(false);
-  const [showCreateMenu, setShowCreateMenu] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [locLoading, setLocLoading] = useState(false);
   const [activeNotifTab, setActiveNotifTab] = useState<'all' | 'unread'>('all');
 
   const [notifications, setNotifications] = useState<any[]>([]);
-
-  const currentRole = localStorage.getItem('helpup_community_role') || 'Community Neighbor';
 
   const fetchNotifications = async () => {
     try {
@@ -64,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearch, onMobileMenuToggle }) 
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        const searchInput = document.getElementById('navbar-saas-search');
+        const searchInput = document.getElementById('navbar-search-input');
         if (searchInput) searchInput.focus();
       }
     };
@@ -91,21 +86,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearch, onMobileMenuToggle }) 
     } else {
       navigate(`/home?search=${encodeURIComponent(searchVal)}`);
     }
-  };
-
-  const handleSimulateLocationChange = () => {
-    const randomOffsetLat = (Math.random() - 0.5) * 0.01;
-    const randomOffsetLon = (Math.random() - 0.5) * 0.01;
-    const newLat = 28.7501 + randomOffsetLat;
-    const newLon = 77.1177 + randomOffsetLon;
-    const locationNames = [
-      'Bawana Road, Rohini',
-      'DTU Main Library, Rohini',
-      'Sector 16 Market, Rohini',
-      'DTU Hostels, New Delhi'
-    ];
-    const randomName = locationNames[Math.floor(Math.random() * locationNames.length)];
-    updateUserCoords(newLat, newLon, randomName);
   };
 
   const handleUseBrowserGPS = () => {
@@ -163,315 +143,300 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearch, onMobileMenuToggle }) 
     }
   };
 
-  const popoverVariants = {
-    hidden: { opacity: 0, y: 8, scale: 0.96 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { type: "spring" as const, stiffness: 350, damping: 25 }
-    },
-    exit: { 
-      opacity: 0, 
-      y: 8, 
-      scale: 0.96,
-      transition: { duration: 0.15 }
-    }
-  };
+  const [locationSearch, setLocationSearch] = useState('');
+  const popularLocations = [
+    'Rohini Sector 16, New Delhi',
+    'DTU Campus, New Delhi',
+    'Indiranagar, Bengaluru',
+    'Koramangala, Bengaluru',
+    'Bandra West, Mumbai',
+    'Andheri East, Mumbai',
+    'Hitec City, Hyderabad',
+    'Kothrud, Pune'
+  ];
+
+  const filteredLocations = popularLocations.filter((loc) =>
+    loc.toLowerCase().includes(locationSearch.toLowerCase())
+  );
 
   return (
-    <>
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 sm:px-6 backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/80 transition-colors">
-        {/* Left: Mobile Toggle & SaaS Search Bar */}
-        <div className="flex items-center gap-3 flex-1 max-w-xl">
-          <button
-            onClick={onMobileMenuToggle}
-            className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 md:hidden dark:text-slate-400 dark:hover:bg-slate-900 transition-colors"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#1E293B] px-4 sm:px-6 transition-colors shadow-xs">
+      {/* Left: Mobile Menu Toggle & Location Selector */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMobileMenuToggle}
+          className="rounded-xl p-2 text-[#64748B] hover:text-[#102A43] hover:bg-[#F1F5F9] md:hidden transition-colors"
+          aria-label="Open navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
 
-          {/* Quick Search with ⌘K Badge */}
-          <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md hidden sm:block">
-            <Search className="absolute left-3.5 top-[11px] h-3.5 w-3.5 text-slate-400" />
-            <input
-              id="navbar-saas-search"
-              type="text"
-              placeholder="Search items, skills, emergency requests..."
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              className="h-9 w-full rounded-xl bg-slate-100/70 dark:bg-slate-900/60 pl-9 pr-14 text-xs font-medium text-slate-800 dark:text-slate-100 outline-none border border-slate-200/60 dark:border-slate-800/80 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-sm placeholder:text-slate-400"
-            />
-            <div className="absolute right-2.5 top-2 flex items-center gap-0.5 pointer-events-none">
-              <span className="saas-kbd text-[9px] px-1 py-0.2">⌘K</span>
-            </div>
-          </form>
-        </div>
-
-        {/* Right: Actions, Location Beacon, Plan Badge, Notifications */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Non-Profit Community Charter Badge Button */}
+        {/* Location Dropdown */}
+        <div className="relative">
           <button
             type="button"
-            onClick={() => setShowUpgradeModal(true)}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 hover:bg-emerald-100/60 transition-all duration-200 shadow-sm"
+            onClick={() => {
+              setShowLocationMenu(!showLocationMenu);
+              if (showNotifications) setShowNotifications(false);
+            }}
+            className="flex items-center gap-2 rounded-xl border border-[#38BDF8]/40 dark:border-[#38BDF8]/30 bg-[#E0F2FE]/40 dark:bg-[#0C4A6E]/30 hover:border-[#38BDF8] px-3 py-1.5 text-xs font-semibold text-[#0369A1] dark:text-[#38BDF8] transition-all shadow-xs max-w-[170px] sm:max-w-[220px]"
           >
-            <Heart className="h-3.5 w-3.5 text-emerald-500 fill-emerald-500/20" />
-            <span>100% Non-Profit</span>
+            <MapPin className="h-4 w-4 text-[#38BDF8] shrink-0" />
+            <span className="truncate text-left">
+              {user?.location_name ? user.location_name.split(',')[0] : 'DTU Campus, Rohini'}
+            </span>
+            <ChevronDown className={`h-3.5 w-3.5 text-[#38BDF8]/70 ml-auto shrink-0 transition-transform ${showLocationMenu ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* Location Radius Beacon */}
-          {user && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowLocationMenu(!showLocationMenu);
-                  if (showNotifications) setShowNotifications(false);
-                  if (showCreateMenu) setShowCreateMenu(false);
-                }}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 hover:border-indigo-300 dark:hover:border-indigo-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors shadow-sm"
+          <AnimatePresence>
+            {showLocationMenu && (
+              <motion.div 
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.15 }}
+                className="absolute left-0 mt-2 w-72 sm:w-80 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#1E293B] p-3.5 shadow-xl z-50 flex flex-col gap-2.5"
               >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500" />
-                </span>
-                <span className="max-w-[100px] sm:max-w-[150px] truncate">
-                  {user.location_name ? user.location_name.split(',')[0] : 'Downtown Rohini'}
-                </span>
-                <ChevronDown className="h-3 w-3 text-slate-400 ml-0.5" />
-              </button>
+                <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-[#334155]">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                    Select Your Neighborhood
+                  </span>
+                  <button onClick={() => setShowLocationMenu(false)} className="text-[#94A3B8] hover:text-[#1E293B]">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
 
-              <AnimatePresence>
-                {showLocationMenu && (
-                  <motion.div 
-                    variants={popoverVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 shadow-2xl z-50 flex flex-col gap-1.5"
-                  >
-                    <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Mesh Geographic Node
-                    </div>
-                    
-                    <button
-                      type="button"
-                      onClick={handleUseBrowserGPS}
-                      disabled={locLoading}
-                      className="flex items-center gap-2.5 rounded-xl p-2.5 text-xs text-left font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 w-full transition-colors disabled:opacity-50"
-                    >
-                      <span>🌐</span>
-                      <div className="flex flex-col">
-                        <span>{locLoading ? "Detecting GPS..." : "Detect Live Browser GPS"}</span>
-                        <span className="text-[10px] text-slate-400 font-normal">Real-time coordinates</span>
-                      </div>
-                    </button>
+                {/* GPS Detector */}
+                <button
+                  type="button"
+                  onClick={handleUseBrowserGPS}
+                  disabled={locLoading}
+                  className="flex items-center gap-2.5 rounded-xl p-2.5 text-xs font-semibold text-[#0284C7] dark:text-[#38BDF8] bg-[#E0F2FE] dark:bg-[#0C4A6E]/40 border border-[#38BDF8]/40 hover:bg-[#BAE6FD] w-full transition-colors disabled:opacity-50"
+                >
+                  <MapPin className="h-4 w-4 text-[#0284C7] dark:text-[#38BDF8] shrink-0" />
+                  <div className="flex flex-col text-left">
+                    <span>{locLoading ? "Locating you..." : "Detect Current Location"}</span>
+                    <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal">Fast auto-detect via GPS</span>
+                  </div>
+                </button>
 
+                {/* Search input */}
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#94A3B8]" />
+                  <input
+                    type="text"
+                    placeholder="Search city, sector or landmark..."
+                    value={locationSearch}
+                    onChange={(e) => setLocationSearch(e.target.value)}
+                    className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] text-xs text-[#1E293B] dark:text-[#F8FAFC] placeholder-[#94A3B8] focus:border-[#19A974] focus:outline-none"
+                  />
+                </div>
+
+                {/* Popular areas */}
+                <div className="flex flex-col gap-1 max-h-44 overflow-y-auto">
+                  <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider px-1 pt-1">
+                    Nearby Hubs
+                  </span>
+                  {filteredLocations.map((loc) => (
                     <button
+                      key={loc}
                       type="button"
                       onClick={() => {
-                        handleSimulateLocationChange();
+                        updateUserCoords(28.7501, 77.1177, loc);
                         setShowLocationMenu(false);
                       }}
-                      className="flex items-center gap-2.5 rounded-xl p-2.5 text-xs text-left font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 w-full transition-colors"
+                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-left text-[#64748B] dark:text-[#94A3B8] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#334155] transition-colors"
                     >
-                      <span>📍</span>
-                      <div className="flex flex-col">
-                        <span>Switch to Campus Hub</span>
-                        <span className="text-[10px] text-slate-400 font-normal">DTU & Rohini Sector 16</span>
-                      </div>
+                      <MapPin className="h-3 w-3 text-[#94A3B8] shrink-0" />
+                      <span className="truncate">{loc}</span>
                     </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {/* Quick Create Action Menu */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setShowCreateMenu(!showCreateMenu);
-                if (showNotifications) setShowNotifications(false);
-                if (showLocationMenu) setShowLocationMenu(false);
-              }}
-              className="saas-btn-primary !py-1.5 !px-3 !text-xs shadow-md shadow-indigo-600/25"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Post</span>
-            </button>
-
-            <AnimatePresence>
-              {showCreateMenu && (
-                <motion.div
-                  variants={popoverVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-2xl z-50 flex flex-col gap-1"
-                >
-                  <Link
-                    to="/create-listing?type=borrow"
-                    onClick={() => setShowCreateMenu(false)}
-                    className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 transition-colors"
-                  >
-                    <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600">
-                      <HelpCircle className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="font-bold">Ask to Borrow</div>
-                      <div className="text-[10px] text-slate-400 font-normal">Request tools, electronics, books</div>
-                    </div>
-                  </Link>
-
-                  <Link
-                    to="/create-listing?type=lend"
-                    onClick={() => setShowCreateMenu(false)}
-                    className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-colors"
-                  >
-                    <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600">
-                      <Package className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="font-bold">List an Item / Skill</div>
-                      <div className="text-[10px] text-slate-400 font-normal">Share resources with neighbors</div>
-                    </div>
-                  </Link>
-
-                  <Link
-                    to="/emergency"
-                    onClick={() => setShowCreateMenu(false)}
-                    className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors border-t border-slate-100 dark:border-slate-800 mt-1"
-                  >
-                    <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600">
-                      <AlertTriangle className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="font-bold">Emergency Broadcast</div>
-                      <div className="text-[10px] text-rose-400 font-normal">Urgent medicine, power, tools</div>
-                    </div>
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Notifications Center */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowNotifications(!showNotifications);
-                if (showLocationMenu) setShowLocationMenu(false);
-                if (showCreateMenu) setShowCreateMenu(false);
-              }}
-              className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
-            >
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            <AnimatePresence>
-              {showNotifications && (
-                <motion.div
-                  variants={popoverVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xl z-50 overflow-hidden"
-                >
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xs font-bold text-slate-900 dark:text-white">
-                        Notifications
-                      </h3>
-                      {unreadCount > 0 && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-bold">
-                          {unreadCount} new
-                        </span>
-                      )}
-                    </div>
-                    
-                    {unreadCount > 0 && (
-                      <button
-                        onClick={markAllRead}
-                        className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-                      >
-                        <CheckCheck className="h-3 w-3" />
-                        <span>Mark all read</span>
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Filter Tabs */}
-                  <div className="flex gap-2 pt-2.5 pb-2">
-                    <button
-                      onClick={() => setActiveNotifTab('all')}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
-                        activeNotifTab === 'all'
-                          ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
-                          : 'text-slate-400 hover:text-slate-700'
-                      }`}
-                    >
-                      All ({notifications.length})
-                    </button>
-                    <button
-                      onClick={() => setActiveNotifTab('unread')}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
-                        activeNotifTab === 'unread'
-                          ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
-                          : 'text-slate-400 hover:text-slate-700'
-                      }`}
-                    >
-                      Unread ({unreadCount})
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-2 pt-1 max-h-72 overflow-y-auto scrollbar-none">
-                    {filteredNotifications.length > 0 ? (
-                      filteredNotifications.map((n) => (
-                        <Link
-                          key={n.id}
-                          to={n.link_to || '/home'}
-                          onClick={() => handleNotificationClick(n.id)}
-                          className={`flex flex-col rounded-xl p-3 text-xs transition-colors ${
-                            n.is_read
-                              ? 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                              : 'bg-indigo-50/70 dark:bg-indigo-950/40 text-slate-800 dark:text-slate-200 border border-indigo-100 dark:border-indigo-800/40'
-                          }`}
-                        >
-                          <span className="font-bold text-slate-900 dark:text-white">
-                            {n.title}
-                          </span>
-                          <span className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            {n.content}
-                          </span>
-                        </Link>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-xs text-slate-400 flex flex-col items-center gap-1.5">
-                        <span className="text-xl">✨</span>
-                        <span>No notifications right now</span>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </header>
+      </div>
 
-      {/* SaaS Upgrade Modal */}
-      <SaaSUpgradeModal 
-        isOpen={showUpgradeModal} 
-        onClose={() => setShowUpgradeModal(false)} 
-      />
-    </>
+      {/* Center: Search Bar */}
+      <div className="flex-1 max-w-xl mx-4 hidden sm:block">
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+          <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-[#94A3B8]" />
+          <input
+            id="navbar-search-input"
+            type="text"
+            placeholder="Search assistance, items to borrow, skills or volunteers..."
+            value={searchVal}
+            onChange={(e) => setSearchVal(e.target.value)}
+            className="h-10 w-full rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] pl-10 pr-12 text-xs font-medium text-[#1E293B] dark:text-[#F8FAFC] outline-none border border-[#E2E8F0] dark:border-[#334155] focus:border-[#19A974] focus:ring-2 focus:ring-[#19A974]/20 transition-all placeholder:text-[#94A3B8]"
+          />
+          <div className="absolute right-2.5 top-2.5 flex items-center gap-0.5 pointer-events-none">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#E2E8F0] dark:bg-[#334155] text-[#64748B] dark:text-[#94A3B8]">
+              ⌘K
+            </span>
+          </div>
+        </form>
+      </div>
+
+      {/* Right: Actions, Messages, Notifications & Profile */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Theme Toggle */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 rounded-xl text-[#64748B] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#334155] transition-colors"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-amber-400" /> : <Moon className="h-4.5 w-4.5 text-[#102A43]" />}
+        </button>
+
+        {/* Chat Shortcut */}
+        <Link
+          to="/chat"
+          className="p-2 rounded-xl text-[#64748B] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#334155] transition-colors relative"
+          title="Direct Messages"
+        >
+          <MessageSquare className="h-5 w-5" />
+        </Link>
+
+        {/* Notifications */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              if (showLocationMenu) setShowLocationMenu(false);
+            }}
+            className="relative p-2 rounded-xl text-[#64748B] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#334155] transition-colors"
+            title="Notifications"
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#EF4444] text-[9px] font-bold text-white shadow-xs">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          <AnimatePresence>
+            {showNotifications && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#1E293B] p-4 shadow-xl z-50 text-[#1E293B] dark:text-[#F8FAFC]"
+              >
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] dark:border-[#334155]">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-[#102A43] dark:text-white">
+                      Notifications
+                    </h3>
+                    {unreadCount > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#EF4444]/15 text-[#EF4444] text-[10px] font-bold">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={markAllRead}
+                      className="text-[11px] font-semibold text-[#19A974] hover:underline flex items-center gap-1"
+                    >
+                      <CheckCheck className="h-3 w-3" />
+                      <span>Mark all read</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-2.5 pb-2">
+                  <button
+                    onClick={() => setActiveNotifTab('all')}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                      activeNotifTab === 'all'
+                        ? 'bg-[#102A43] text-white'
+                        : 'text-[#64748B] hover:bg-[#F1F5F9]'
+                    }`}
+                  >
+                    All ({notifications.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveNotifTab('unread')}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+                      activeNotifTab === 'unread'
+                        ? 'bg-[#102A43] text-white'
+                        : 'text-[#64748B] hover:bg-[#F1F5F9]'
+                    }`}
+                  >
+                    Unread ({unreadCount})
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-2 pt-1 max-h-72 overflow-y-auto">
+                  {filteredNotifications.length > 0 ? (
+                    filteredNotifications.map((n) => (
+                      <Link
+                        key={n.id}
+                        to={n.link_to || '/home'}
+                        onClick={() => handleNotificationClick(n.id)}
+                        className={`flex flex-col rounded-xl p-3 text-xs transition-colors ${
+                          n.is_read
+                            ? 'bg-transparent text-[#64748B] hover:bg-[#F8FAFC]'
+                            : 'bg-[#F0FDF8] dark:bg-[#19A974]/15 border border-[#19A974]/30 text-[#1E293B]'
+                        }`}
+                      >
+                        <span className="font-bold text-[#102A43] dark:text-white">
+                          {n.title}
+                        </span>
+                        <span className="mt-0.5 text-[11px] text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                          {n.content}
+                        </span>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-xs text-[#64748B] flex flex-col items-center gap-1.5">
+                      <Sparkles className="h-5 w-5 text-[#19A974]" />
+                      <span>All caught up! No notifications.</span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* User Profile Avatar */}
+        {user ? (
+          <Link
+            to={`/profile/${user.id}`}
+            className="flex items-center gap-2 p-0.5 rounded-full hover:ring-2 hover:ring-[#19A974]/50 transition-all"
+            title="My Profile"
+          >
+            <img
+              src={user.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'Neighbor')}&background=102A43&color=fff`}
+              alt={user.name}
+              className="h-8 w-8 rounded-full object-cover ring-1 ring-[#E2E8F0]"
+            />
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="text-xs font-semibold text-[#102A43] hover:text-[#19A974] px-3 py-1.5 transition-colors"
+          >
+            Sign In
+          </Link>
+        )}
+
+        {/* Primary CTA: Request Help or Share */}
+        <Link
+          to="/create-listing"
+          className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl font-bold text-xs text-white bg-[#19A974] hover:bg-[#148A5E] transition-all shadow-xs shadow-[#19A974]/25 hover:-translate-y-0.5"
+        >
+          <Plus className="h-4 w-4 stroke-[2.5]" />
+          <span className="hidden xs:inline">Request Help</span>
+          <span className="xs:hidden">Help</span>
+        </Link>
+      </div>
+    </header>
   );
 };

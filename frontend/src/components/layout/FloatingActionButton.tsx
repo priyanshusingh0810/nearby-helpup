@@ -12,14 +12,11 @@ export const FloatingActionButton: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
-      {/* Ambient glow ring */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 opacity-20 blur-lg animate-glow-pulse scale-125" />
-      
+    <div className="fixed bottom-22 right-6 z-40 hidden sm:block">
       <Link
         to="/create-listing"
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-110 transition-all duration-300 dark:shadow-indigo-500/15 dark:hover:shadow-indigo-500/25 hover:rotate-90 active:scale-95"
-        title="Share or Request Something"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-[#19A974] hover:bg-[#158f62] text-white shadow-lg shadow-[#19A974]/30 hover:scale-105 transition-all duration-200 border-2 border-white/60 dark:border-slate-800"
+        title="Post New Assistance or Request"
       >
         <Plus className="h-6 w-6" />
       </Link>

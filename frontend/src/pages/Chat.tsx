@@ -6,18 +6,18 @@ import {
   Image, 
   MapPin, 
   Mic, 
-  File, 
-  Smile, 
   Phone, 
   Video, 
-  Info, 
   Check, 
   CheckCheck,
   X,
   Volume2,
   Sparkles,
   Plus,
-  MessageSquare
+  MessageSquare,
+  Search,
+  ArrowLeft,
+  ShieldCheck
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 
@@ -30,6 +30,10 @@ export const Chat: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [messageText, setMessageText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [searchContact, setSearchContact] = useState('');
+
+  // Mobile view toggle (show list vs active chat on small screens)
+  const [mobileChatView, setMobileChatView] = useState<'list' | 'chat'>('list');
 
   // Typing simulator state
   const [typingUser, setTypingUser] = useState<string | null>(null);
@@ -72,8 +76,9 @@ export const Chat: React.FC = () => {
   const handleSelectChat = async (chat: any) => {
     setActiveChat(chat);
     setMessages(chat.messages || []);
+    setMobileChatView('chat');
     
-    // Close existing WebSocket if any
+    // Close existing WebSocket
     if (socketRef.current) {
       socketRef.current.close();
     }
@@ -86,7 +91,6 @@ export const Chat: React.FC = () => {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        // Deduplicate messages
         setMessages((prev) => {
           if (prev.some((m) => m.id === data.id)) return prev;
           return [...prev, data];
@@ -98,14 +102,14 @@ export const Chat: React.FC = () => {
       console.error('WebSocket connection failed', e);
     }
 
-    // Trigger mock typing indicator after selecting chat to simulate activity
+    // Mock typing indicator
     setTimeout(() => {
       const otherUser = chat.user1_id === user?.id ? chat.user2 : chat.user1;
-      setTypingUser(otherUser.name);
+      setTypingUser(otherUser?.name || 'Neighbor');
       setTimeout(() => {
         setTypingUser(null);
-      }, 2500);
-    }, 4000);
+      }, 2000);
+    }, 3500);
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -121,10 +125,8 @@ export const Chat: React.FC = () => {
     };
 
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      // Send via WS
       socketRef.current.send(JSON.stringify(payload));
     } else {
-      // Fallback to HTTP
       try {
         const msg = await api.chats.sendMessage(activeChat.id, payload);
         setMessages(prev => [...prev, msg]);
@@ -133,7 +135,6 @@ export const Chat: React.FC = () => {
       }
     }
 
-    // Reset fields
     setMessageText('');
     setAttachedImage(null);
     setAttachedVoice(null);
@@ -141,14 +142,13 @@ export const Chat: React.FC = () => {
     setShowAttachments(false);
   };
 
-  // Mock attachment selections
   const attachMockImage = () => {
     setAttachedImage("https://images.unsplash.com/photo-1540553016722-983e48a2cd10?w=400&auto=format&fit=crop");
     setShowAttachments(false);
   };
 
   const attachMockVoice = () => {
-    setAttachedVoice("mock_voice_recording.mp3");
+    setAttachedVoice("voice_note.mp3");
     setShowAttachments(false);
   };
 
@@ -157,28 +157,53 @@ export const Chat: React.FC = () => {
     setShowAttachments(false);
   };
 
+  const filteredChats = chats.filter((c) => {
+    const otherUser = c.user1_id === user?.id ? c.user2 : c.user1;
+    return otherUser?.name?.toLowerCase().includes(searchContact.toLowerCase()) || 
+           c.listing?.title?.toLowerCase().includes(searchContact.toLowerCase());
+  });
+
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center p-20">
-        <div className="h-10 w-10 border-4 border-indigo-650 border-t-transparent rounded-full animate-spin" />
+      <div className="flex-1 flex items-center justify-center p-24">
+        <div className="h-10 w-10 border-4 border-[#19A974] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden w-full bg-slate-50 dark:bg-slate-900/10">
+    <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden w-full bg-[#F8FAFC] dark:bg-[#0F172A] text-left">
       
-      {/* 1. Chats Sidebar list */}
-      <aside className="w-full md:w-64 bg-white/80 backdrop-blur-sm border-r border-slate-200/50 dark:bg-slate-950/80 dark:border-slate-850 flex flex-col h-auto md:h-full shrink-0">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-850">
-          <h3 className="font-extrabold text-sm text-slate-850 dark:text-white font-sans">
-            Private Messages
-          </h3>
-          <p className="text-[10px] text-slate-400 mt-0.5">Secure peer-to-peer exchanges</p>
+      {/* 1. Conversations Sidebar */}
+      <aside className={`w-full md:w-80 bg-white dark:bg-[#1E293B] border-r border-[#E2E8F0] dark:border-[#334155] flex flex-col h-full shrink-0 ${
+        mobileChatView === 'chat' ? 'hidden md:flex' : 'flex'
+      }`}>
+        <div className="p-4 border-b border-[#E2E8F0] dark:border-[#334155]">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-sm text-[#102A43] dark:text-white">
+              Neighbor Messages
+            </h3>
+            <span className="text-[10px] font-bold text-[#19A974] bg-[#F0FDF8] dark:bg-[#19A974]/15 px-2 py-0.5 rounded-full">
+              {chats.length} Active
+            </span>
+          </div>
+
+          {/* Search Contacts */}
+          <div className="relative mt-3">
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#94A3B8]" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={searchContact}
+              onChange={(e) => setSearchContact(e.target.value)}
+              className="w-full h-8 pl-8 pr-3 rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] text-xs text-[#1E293B] dark:text-white placeholder-[#94A3B8] outline-none focus:border-[#19A974]"
+            />
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-1.5">
-          {chats.length > 0 ? (
-            chats.map((c) => {
+
+        <div className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-1">
+          {filteredChats.length > 0 ? (
+            filteredChats.map((c) => {
               const otherUser = c.user1_id === user?.id ? c.user2 : c.user1;
               const isActive = activeChat?.id === c.id;
               
@@ -188,25 +213,34 @@ export const Chat: React.FC = () => {
                   onClick={() => handleSelectChat(c)}
                   className={`flex items-center gap-3 p-3 rounded-xl w-full text-left transition-all ${
                     isActive 
-                      ? 'bg-indigo-50/70 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400' 
-                      : 'hover:bg-slate-50 text-slate-700 dark:text-slate-400 dark:hover:bg-slate-900/40'
+                      ? 'bg-[#F0FDF8] dark:bg-[#19A974]/15 border border-[#19A974]/30 shadow-xs' 
+                      : 'hover:bg-[#F8FAFC] dark:hover:bg-[#334155]/40 text-[#64748B]'
                   }`}
                 >
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <img
-                      src={otherUser.profile_photo}
+                      src={otherUser?.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherUser?.name || 'Neighbor')}&background=102A43&color=fff`}
                       alt=""
-                      className="h-9 w-9 rounded-lg object-cover bg-slate-50"
+                      className="h-10 w-10 rounded-full object-cover ring-1 ring-[#E2E8F0]"
                     />
-                    <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-950" />
+                    <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-[#19A974] border-2 border-white dark:border-[#1E293B]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold text-slate-850 dark:text-white truncate">
-                      {otherUser.name}
-                    </h4>
-                    {c.listing && (
-                      <p className="text-[9px] text-slate-400 truncate mt-0.5">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold text-[#102A43] dark:text-white truncate">
+                        {otherUser?.name}
+                      </h4>
+                      <span className="text-[10px] text-[#94A3B8]">
+                        Now
+                      </span>
+                    </div>
+                    {c.listing ? (
+                      <p className="text-[11px] text-[#19A974] font-medium truncate mt-0.5">
                         Item: {c.listing.title}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-[#64748B] dark:text-[#9FB3C8] truncate mt-0.5">
+                        Direct communication
                       </p>
                     )}
                   </div>
@@ -214,89 +248,109 @@ export const Chat: React.FC = () => {
               );
             })
           ) : (
-            <div className="text-center py-10 text-xs text-slate-400">
-              No chat logs found.
+            <div className="text-center py-12 text-xs text-[#94A3B8]">
+              No conversations found.
             </div>
           )}
         </div>
       </aside>
 
       {/* 2. Chat Conversation Box */}
-      <div className="flex-1 flex flex-col justify-between h-full bg-white dark:bg-slate-950 relative">
+      <div className={`flex-1 flex flex-col justify-between h-full bg-white dark:bg-[#0F172A] relative ${
+        mobileChatView === 'list' ? 'hidden md:flex' : 'flex'
+      }`}>
         {activeChat ? (
           <>
             {/* Header info */}
-            <div className="bg-white/60 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-850 px-6 py-4 flex items-center justify-between shadow-sm">
+            <div className="bg-white dark:bg-[#1E293B] border-b border-[#E2E8F0] dark:border-[#334155] px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="relative">
+                {/* Back to list button on mobile */}
+                <button
+                  onClick={() => setMobileChatView('list')}
+                  className="p-1.5 rounded-lg text-[#64748B] md:hidden hover:bg-[#F1F5F9]"
+                  aria-label="Back to contacts"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+
+                <div className="relative shrink-0">
                   <img
-                    src={(activeChat.user1_id === user?.id ? activeChat.user2 : activeChat.user1).profile_photo}
+                    src={(activeChat.user1_id === user?.id ? activeChat.user2 : activeChat.user1)?.profile_photo || `https://ui-avatars.com/api/?name=Neighbor&background=102A43&color=fff`}
                     alt=""
-                    className="h-9 w-9 rounded-lg object-cover bg-slate-50"
+                    className="h-9 w-9 rounded-full object-cover ring-1 ring-[#19A974]"
                   />
-                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-905" />
+                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-[#19A974] border-2 border-white dark:border-[#1E293B]" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-slate-850 dark:text-white">
-                    {(activeChat.user1_id === user?.id ? activeChat.user2 : activeChat.user1).name}
+                  <h4 className="text-xs font-bold text-[#102A43] dark:text-white">
+                    {(activeChat.user1_id === user?.id ? activeChat.user2 : activeChat.user1)?.name}
                   </h4>
-                  <span className="text-[9px] text-slate-400">Online • Verified Helper</span>
+                  <div className="flex items-center gap-1 text-[10px] text-[#19A974] font-medium">
+                    <ShieldCheck className="h-3 w-3" />
+                    <span>Verified Neighbor • Active</span>
+                  </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                <button className="p-2 border border-slate-100 rounded-lg text-slate-455 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900" title="Audio Call Ready">
+              <div className="flex items-center gap-2">
+                <button 
+                  className="p-2 border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-[#64748B] hover:text-[#102A43] hover:bg-[#F8FAFC] dark:hover:bg-[#334155] transition-colors" 
+                  title="Audio Coordinate Ready"
+                >
                   <Phone className="h-4 w-4" />
                 </button>
-                <button className="p-2 border border-slate-100 rounded-lg text-slate-455 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900" title="Video Call Ready">
+                <button 
+                  className="p-2 border border-[#E2E8F0] dark:border-[#334155] rounded-xl text-[#64748B] hover:text-[#102A43] hover:bg-[#F8FAFC] dark:hover:bg-[#334155] transition-colors" 
+                  title="Video Coordinate Ready"
+                >
                   <Video className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            {/* Messages Feed panel */}
-            <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
+            {/* Messages Feed */}
+            <div className="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col gap-3.5 bg-[#F8FAFC] dark:bg-[#0F172A]">
               {messages.map((m) => {
                 const isSelf = m.sender_id === user?.id;
                 return (
                   <div 
                     key={m.id} 
-                    className={`flex flex-col gap-1 w-fit max-w-[70%] ${
+                    className={`flex flex-col gap-1 w-fit max-w-[80%] sm:max-w-[70%] ${
                       isSelf ? 'ml-auto items-end' : 'mr-auto items-start'
                     }`}
                   >
-                    <div className={`text-xs p-3 rounded-2xl shadow-sm leading-relaxed ${
+                    <div className={`text-xs p-3.5 rounded-2xl shadow-xs leading-relaxed ${
                       isSelf 
-                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/15' 
-                        : 'bg-slate-50 border border-slate-100 text-slate-800 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-205'
+                        ? 'bg-[#19A974] text-white rounded-br-xs' 
+                        : 'bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-[#1E293B] dark:text-white rounded-bl-xs'
                     }`}>
                       {m.content}
 
-                      {/* Display attachments if present */}
+                      {/* Attachment preview */}
                       {m.image_url && (
-                        <img src={m.image_url} alt="Shared Attachment" className="rounded-lg mt-2 max-h-36 object-cover w-full" />
+                        <img src={m.image_url} alt="Shared Attachment" className="rounded-xl mt-2 max-h-40 object-cover w-full shadow-xs" />
                       )}
 
                       {m.voice_url && (
-                        <div className="flex items-center gap-2 mt-2 bg-slate-950/20 px-3 py-2 rounded-xl text-[10px]">
-                          <Volume2 className="h-4.5 w-4.5 text-indigo-400 animate-pulse" />
-                          <span>Voice Note: Playback ready</span>
+                        <div className="flex items-center gap-2 mt-2 bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-xl text-[10px]">
+                          <Volume2 className="h-4 w-4 animate-pulse" />
+                          <span>Voice Recording (0:15)</span>
                         </div>
                       )}
 
                       {m.latitude && m.longitude && (
-                        <div className="flex items-center gap-2 mt-2 bg-slate-950/20 px-3 py-2 rounded-xl text-[10px]">
-                          <MapPin className="h-4.5 w-4.5 text-rose-455 shrink-0" />
-                          <span className="truncate">Coordinates: {m.latitude.toFixed(4)}, {m.longitude.toFixed(4)}</span>
+                        <div className="flex items-center gap-2 mt-2 bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-xl text-[10px]">
+                          <MapPin className="h-4 w-4 shrink-0" />
+                          <span>Shared Location Coordinates</span>
                         </div>
                       )}
                     </div>
                     
-                    {/* Timestamp & Read Receipt */}
-                    <div className="flex items-center gap-1 text-[8px] text-slate-400 mt-0.5">
+                    {/* Timestamp & Status */}
+                    <div className="flex items-center gap-1 text-[9px] text-[#94A3B8] px-1">
                       <span>{new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       {isSelf && (
-                        m.is_read ? <CheckCheck className="h-3 w-3 text-indigo-500" /> : <Check className="h-3 w-3 text-slate-400" />
+                        m.is_read ? <CheckCheck className="h-3 w-3 text-[#19A974]" /> : <Check className="h-3 w-3 text-[#94A3B8]" />
                       )}
                     </div>
                   </div>
@@ -305,7 +359,7 @@ export const Chat: React.FC = () => {
 
               {/* Typing indicator */}
               {typingUser && (
-                <div className="text-[10px] text-slate-400 italic animate-pulse">
+                <div className="text-[11px] text-[#64748B] dark:text-[#9FB3C8] italic animate-pulse">
                   {typingUser} is typing...
                 </div>
               )}
@@ -313,76 +367,79 @@ export const Chat: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Attachment preview if any selected */}
+            {/* Attachment preview banner */}
             {(attachedImage || attachedVoice || attachedLoc) && (
-              <div className="px-6 py-2 bg-indigo-50/50 border-t border-indigo-100/20 dark:bg-indigo-950/20 dark:border-indigo-900/30 flex items-center justify-between text-[10px] text-indigo-650 font-bold">
+              <div className="px-6 py-2 bg-[#F0FDF8] dark:bg-[#19A974]/15 border-t border-[#19A974]/30 flex items-center justify-between text-[11px] text-[#19A974] font-bold">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>
-                    Attachment loaded: {attachedImage ? 'Photo Image' : attachedVoice ? 'Audio Voice Recording' : 'Map Location Coordinates'}
+                    Ready to send: {attachedImage ? 'Photo Image' : attachedVoice ? 'Audio Voice Recording' : 'Location Pin'}
                   </span>
                 </div>
                 <button onClick={() => {
                   setAttachedImage(null);
                   setAttachedVoice(null);
                   setAttachedLoc(null);
-                }} className="text-slate-400 hover:text-slate-600">
+                }} className="text-[#64748B] hover:text-[#1E293B]">
                   <X className="h-4 w-4" />
                 </button>
               </div>
             )}
 
-            {/* Input & Attachments Drawer panel */}
-            <div className="relative">
+            {/* Input & Attachments Panel */}
+            <div className="relative border-t border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#1E293B]">
               {showAttachments && (
-                <div className="absolute bottom-16 left-4 bg-white/95 backdrop-blur-xl border border-slate-200/40 dark:bg-slate-900/95 dark:border-slate-800/40 rounded-2xl p-4 flex flex-col gap-2.5 shadow-2xl w-44 z-20 animate-scale-in">
-                  <button onClick={attachMockImage} className="flex items-center gap-2.5 text-[10px] font-bold text-slate-700 hover:text-indigo-500 dark:text-slate-300 w-full text-left">
-                    <Image className="h-4.5 w-4.5 text-indigo-550" />
-                    <span>Upload Image</span>
+                <div className="absolute bottom-16 left-4 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-3 flex flex-col gap-2 shadow-xl w-48 z-20 animate-fade-in">
+                  <button onClick={attachMockImage} className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-[#1E293B] dark:text-white hover:bg-[#F8FAFC] dark:hover:bg-[#334155] w-full text-left">
+                    <Image className="h-4 w-4 text-[#19A974]" />
+                    <span>Attach Photo</span>
                   </button>
-                  <button onClick={attachMockVoice} className="flex items-center gap-2.5 text-[10px] font-bold text-slate-700 hover:text-indigo-500 dark:text-slate-300 w-full text-left">
-                    <Mic className="h-4.5 w-4.5 text-emerald-555" />
-                    <span>Record Voice</span>
+                  <button onClick={attachMockVoice} className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-[#1E293B] dark:text-white hover:bg-[#F8FAFC] dark:hover:bg-[#334155] w-full text-left">
+                    <Mic className="h-4 w-4 text-[#38BDF8]" />
+                    <span>Voice Memo</span>
                   </button>
-                  <button onClick={attachMockLocation} className="flex items-center gap-2.5 text-[10px] font-bold text-slate-700 hover:text-indigo-500 dark:text-slate-300 w-full text-left">
-                    <MapPin className="h-4.5 w-4.5 text-rose-550" />
+                  <button onClick={attachMockLocation} className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-[#1E293B] dark:text-white hover:bg-[#F8FAFC] dark:hover:bg-[#334155] w-full text-left">
+                    <MapPin className="h-4 w-4 text-[#EF4444]" />
                     <span>Share Location</span>
                   </button>
                 </div>
               )}
 
-              <form onSubmit={handleSend} className="bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-850 p-4 flex gap-2">
+              <form onSubmit={handleSend} className="p-3 sm:p-4 flex gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAttachments(!showAttachments)}
-                  className="h-11 w-11 rounded-xl border border-slate-200 text-slate-455 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900 flex items-center justify-center shrink-0"
+                  className="h-11 w-11 rounded-xl border border-[#E2E8F0] dark:border-[#334155] text-[#64748B] hover:text-[#102A43] hover:bg-[#F8FAFC] dark:hover:bg-[#334155] flex items-center justify-center shrink-0 transition-colors"
+                  title="Add attachments"
                 >
                   <Plus className="h-4.5 w-4.5" />
                 </button>
                 
                 <input
                   type="text"
-                  placeholder="Type message here..."
+                  placeholder="Type a message to coordinate pickup or help..."
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  className="flex-1 h-11 px-4 text-xs rounded-xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-800 dark:text-white"
+                  className="flex-1 h-11 px-4 text-xs sm:text-sm rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] outline-none focus:border-[#19A974] text-[#1E293B] dark:text-white placeholder-[#94A3B8]"
                 />
 
                 <button
                   type="submit"
-                  className="h-11 w-11 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-500 text-white flex items-center justify-center transition-all duration-300 shadow-lg shadow-indigo-500/20 shrink-0 hover:-translate-y-[1px]"
+                  className="h-11 w-11 rounded-xl bg-[#19A974] hover:bg-[#148A5E] text-white flex items-center justify-center transition-all shadow-xs shrink-0"
                 >
-                  <Send className="h-4.5 w-4.5" />
+                  <Send className="h-4 w-4" />
                 </button>
               </form>
             </div>
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-sm mx-auto">
-            <MessageSquare className="h-12 w-12 text-slate-300 mb-3" />
-            <h3 className="font-bold text-sm text-slate-800 dark:text-white">Start a Conversation</h3>
-            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
-              Select an active neighbor session from the sidebar or click details on item listings pages to initiate a direct message box.
+            <div className="h-14 w-14 rounded-2xl bg-[#F0FDF8] dark:bg-[#19A974]/15 flex items-center justify-center text-[#19A974] mb-4">
+              <MessageSquare className="h-7 w-7" />
+            </div>
+            <h3 className="font-bold text-sm text-[#102A43] dark:text-white">Start a Conversation</h3>
+            <p className="text-xs text-[#64748B] dark:text-[#9FB3C8] mt-1.5 leading-relaxed">
+              Select a neighbor from your active threads or click "Message Neighbor" on any assistance request to coordinate.
             </p>
           </div>
         )}

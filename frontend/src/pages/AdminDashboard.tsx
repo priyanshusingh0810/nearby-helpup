@@ -2,38 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { 
   Users, 
-  ShieldAlert, 
   Activity, 
   Trash2, 
   UserCheck, 
-  BarChart, 
   AlertTriangle,
   Flame,
   CheckCircle,
-  FileText
+  FileText,
+  ShieldAlert,
+  ArrowUpRight
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 
 export const AdminDashboard: React.FC = () => {
-  // States
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('verification'); // 'verification' or 'listings'
+  const [tab, setTab] = useState('verification');
 
   const loadAdminData = async () => {
     setLoading(true);
     try {
-      // 1. Load general stats
       const st = await api.admin.getStats();
       setStats(st);
 
-      // 2. Load users list
       const usrList = await api.admin.getUsers();
       setUsers(usrList);
 
-      // 3. Load all active listings
       const list = await api.listings.getAll();
       setListings(list);
     } catch (err) {
@@ -58,7 +54,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   const handleDeleteListing = async (listingId: number) => {
-    if (window.confirm('Are you sure you want to delete this listing from the database?')) {
+    if (window.confirm('Are you sure you want to remove this listing from the platform?')) {
       try {
         await api.admin.deleteListing(listingId);
         alert('Listing deleted successfully.');
@@ -72,7 +68,7 @@ export const AdminDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center p-20">
-        <div className="h-10 w-10 border-4 border-indigo-650 border-t-transparent rounded-full animate-spin" />
+        <div className="h-10 w-10 border-4 border-[#102A43] border-t-[#19A974] rounded-full animate-spin" />
       </div>
     );
   }
@@ -81,86 +77,97 @@ export const AdminDashboard: React.FC = () => {
   const verifiedUsers = users.filter(u => u.identity_verified);
 
   return (
-    <div className="flex-1 p-6 md:p-8 max-w-5xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
+    <div className="flex-1 p-6 md:p-8 max-w-6xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
       
       {/* Header Banner */}
       <div>
-        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-          Admin Control Center
-        </h2>
-        <p className="text-xs text-slate-550 dark:text-slate-400 mt-1">
-          Monitor platform metrics, manage user verification requests, and review flagged listing items.
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-[#102A43] dark:text-white">
+            Admin Governance Center
+          </h1>
+          <span className="rounded-full bg-[#102A43] text-white px-2.5 py-0.5 text-[10px] font-bold">
+            Platform Ops
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Monitor community trust health, review ID credentials, verify neighbors, and moderate active listings.
         </p>
       </div>
 
       {/* Analytics Summary widgets */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <GlassCard className="p-4 flex items-center gap-3.5 border-slate-100/50" hoverEffect={false}>
-            <div className="p-2 bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-950/40 dark:to-indigo-950/20 rounded-xl text-indigo-600">
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="p-2.5 bg-[#38BDF8]/10 rounded-xl text-[#38BDF8]">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Users Registered</span>
-              <h3 className="text-base font-extrabold mt-0.5">{stats.total_users || users.length}</h3>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registered Users</span>
+              <h3 className="text-lg font-bold text-[#102A43] dark:text-white mt-0.5">{stats.total_users || users.length}</h3>
             </div>
-          </GlassCard>
+          </div>
 
-          <GlassCard className="p-4 flex items-center gap-3.5 border-slate-100/50" hoverEffect={false}>
-            <div className="p-2 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/40 dark:to-emerald-950/20 rounded-xl text-emerald-600">
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="p-2.5 bg-[#19A974]/10 rounded-xl text-[#19A974]">
               <Activity className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Active Listings</span>
-              <h3 className="text-base font-extrabold mt-0.5">{stats.total_listings || listings.length}</h3>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Listings</span>
+              <h3 className="text-lg font-bold text-[#102A43] dark:text-white mt-0.5">{stats.total_listings || listings.length}</h3>
             </div>
-          </GlassCard>
+          </div>
 
-          <GlassCard className="p-4 flex items-center gap-3.5 border-slate-100/50" hoverEffect={false}>
-            <div className="p-2 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-950/40 dark:to-amber-950/20 rounded-xl text-amber-600">
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="p-2.5 bg-[#102A43]/10 rounded-xl text-[#102A43] dark:text-slate-300">
               <Flame className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Volunteering Services</span>
-              <h3 className="text-base font-extrabold mt-0.5">{stats.total_services || 5}</h3>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Help Categories</span>
+              <h3 className="text-lg font-bold text-[#102A43] dark:text-white mt-0.5">{stats.total_services || 8}</h3>
             </div>
-          </GlassCard>
+          </div>
 
-          <GlassCard className="p-4 flex items-center gap-3.5 border-slate-100/50" hoverEffect={false}>
-            <div className="p-2 bg-rose-50 dark:bg-rose-955/25 rounded-xl text-rose-500">
-              <AlertTriangle className="h-5 w-5 animate-pulse" />
+          <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="p-2.5 bg-[#EF4444]/10 rounded-xl text-[#EF4444]">
+              <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Emergencies Open</span>
-              <h3 className="text-base font-extrabold mt-0.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Open Emergencies</span>
+              <h3 className="text-lg font-bold text-[#102A43] dark:text-white mt-0.5">
                 {listings.filter(l => l.is_emergency).length}
               </h3>
             </div>
-          </GlassCard>
+          </div>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-1">
+      <div className="flex gap-4 border-b border-[#E2E8F0] dark:border-slate-800">
         <button
           onClick={() => setTab('verification')}
-          className={`px-4 py-2.5 text-xs font-bold transition-all duration-300 border-b-2 ${
+          className={`pb-3 text-xs font-bold transition-all relative ${
             tab === 'verification'
-              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-              : 'border-transparent text-slate-400 hover:text-slate-655'
+              ? 'text-[#102A43] dark:text-white'
+              : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          ID Verification Queue ({pendingVerificationUsers.length})
+          <span>ID Verification Queue ({pendingVerificationUsers.length})</span>
+          {tab === 'verification' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#19A974]" />
+          )}
         </button>
         <button
           onClick={() => setTab('listings')}
-          className={`px-4 py-2.5 text-xs font-bold transition-all border-b-2 ${
+          className={`pb-3 text-xs font-bold transition-all relative ${
             tab === 'listings'
-              ? 'border-indigo-600 text-indigo-655 dark:text-indigo-400'
-              : 'border-transparent text-slate-400 hover:text-slate-655'
+              ? 'text-[#102A43] dark:text-white'
+              : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          Resource Listing Moderation ({listings.length})
+          <span>Listing Moderation ({listings.length})</span>
+          {tab === 'listings' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#19A974]" />
+          )}
         </button>
       </div>
 
@@ -169,39 +176,49 @@ export const AdminDashboard: React.FC = () => {
         <div className="flex flex-col gap-4">
           {pendingVerificationUsers.length > 0 ? (
             pendingVerificationUsers.map((u) => (
-              <GlassCard key={u.id} className="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-slate-100/50" hoverEffect={false}>
+              <div 
+                key={u.id} 
+                className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xs"
+              >
                 <div className="flex items-center gap-3.5">
-                  <img src={u.profile_photo} alt="" className="h-11 w-11 rounded-lg object-cover bg-slate-50" />
+                  <img 
+                    src={u.profile_photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} 
+                    alt="" 
+                    className="h-11 w-11 rounded-xl object-cover bg-slate-100 border border-[#E2E8F0]" 
+                  />
                   <div>
-                    <h4 className="text-xs font-bold text-slate-850 dark:text-white">{u.name}</h4>
-                    <p className="text-[9px] text-slate-400">@{u.username} • {u.email}</p>
+                    <h4 className="text-xs font-bold text-[#102A43] dark:text-white">{u.name}</h4>
+                    <p className="text-[10px] text-slate-400">@{u.username} • {u.email}</p>
                     {u.college && (
-                      <span className="text-[9px] bg-slate-100 text-slate-550 dark:bg-slate-900 dark:text-slate-350 px-2 py-0.5 rounded font-semibold mt-1 inline-block">
+                      <span className="text-[9px] bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full font-medium mt-1 inline-block">
                         {u.college}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3.5 self-stretch md:self-auto shrink-0 justify-end">
-                  <div className="flex items-center gap-1.5 text-[9px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/20 px-2.5 py-1 rounded">
+                <div className="flex items-center gap-3 self-stretch md:self-auto shrink-0 justify-end">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-xl border border-amber-200">
                     <FileText className="h-4 w-4" />
                     <span>ID_Affiliation.png</span>
                   </div>
                   <button
                     onClick={() => handleVerify(u.id)}
-                    className="rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold text-[10px] px-4 py-2.5 transition-all duration-300 shadow-lg shadow-indigo-500/20"
+                    className="rounded-xl bg-[#19A974] hover:bg-[#158f62] text-white font-semibold text-xs px-4 py-2 transition-all shadow-sm flex items-center gap-1"
                   >
-                    Approve Verification
+                    <UserCheck className="h-3.5 w-3.5" />
+                    <span>Approve Verification</span>
                   </button>
                 </div>
-              </GlassCard>
+              </div>
             ))
           ) : (
-            <div className="text-center py-16 border border-dashed border-slate-205 rounded-3xl dark:border-slate-800 bg-white/20">
-              <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto mb-2" />
-              <h3 className="font-bold text-sm">All users verified</h3>
-              <p className="text-xs text-slate-455 mt-1">Pending identity verification queues are currently empty.</p>
+            <div className="text-center py-16 border border-dashed border-[#E2E8F0] rounded-2xl dark:border-slate-800 bg-white dark:bg-[#1E293B]">
+              <div className="h-10 w-10 rounded-full bg-[#19A974]/10 text-[#19A974] flex items-center justify-center mx-auto mb-2">
+                <CheckCircle className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-sm text-[#102A43] dark:text-white">All users verified</h3>
+              <p className="text-xs text-slate-500 mt-1">Pending identity verification queues are currently empty.</p>
             </div>
           )}
         </div>
@@ -209,30 +226,39 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Listing Moderation Panel */}
       {tab === 'listings' && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {listings.length > 0 ? (
             listings.map((item) => (
-              <GlassCard key={item.id} className="p-4 flex justify-between items-center gap-4 border-slate-105" hoverEffect={false}>
+              <div 
+                key={item.id} 
+                className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex justify-between items-center gap-4 shadow-xs"
+              >
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <img src={item.images.split(';')[0]} alt="" className="h-10 w-10 rounded-lg object-cover bg-slate-50 shrink-0" />
+                  <img 
+                    src={item.images?.split(';')[0] || 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=100'} 
+                    alt="" 
+                    className="h-10 w-10 rounded-xl object-cover bg-slate-100 shrink-0 border border-[#E2E8F0]" 
+                  />
                   <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-slate-855 dark:text-white truncate">{item.title}</h4>
-                    <p className="text-[9px] text-slate-400 mt-0.5">Category: {item.category} • Posted by: {item.owner.name}</p>
+                    <h4 className="text-xs font-bold text-[#102A43] dark:text-white truncate">{item.title}</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      Category: {item.category} • Posted by: {item.owner?.name} • Location: {item.location_name}
+                    </p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => handleDeleteListing(item.id)}
-                  className="rounded-xl bg-rose-50 hover:bg-gradient-to-r hover:from-rose-500 hover:to-rose-600 text-rose-500 hover:text-white text-[10px] font-bold p-2.5 transition-all duration-300 shrink-0"
+                  className="rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-[#EF4444] text-xs font-medium p-2.5 transition-all shrink-0"
                   title="Delete Listing"
                 >
-                  <Trash2 className="h-4.5 w-4.5" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
-              </GlassCard>
+              </div>
             ))
           ) : (
-            <div className="text-center py-16 border border-dashed border-slate-205 rounded-3xl bg-white/20">
-              <h3 className="font-bold text-sm">No active listings posted</h3>
+            <div className="text-center py-16 border border-dashed border-[#E2E8F0] rounded-2xl bg-white dark:bg-[#1E293B]">
+              <h3 className="font-bold text-sm text-[#102A43]">No active listings found</h3>
             </div>
           )}
         </div>
