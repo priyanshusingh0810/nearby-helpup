@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Sen:wght@400;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @import "tailwindcss";
 
@@ -223,5 +223,42 @@ h1, h2, h3, h4, h5, h6 {
 /* Eliminate tap delay and highlight on mobile devices */
 button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* AppGrids Signature Theme Utilities */
+.font-sen {
+  font-family: 'Sen', sans-serif;
+}
+
+.font-hind {
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+.shadow-brand-glow {
+  box-shadow: 0px 3px 26px rgba(78, 110, 241, 0.39);
+}
+
+.shadow-card-soft {
+  box-shadow: 0px 14px 27px rgba(177, 185, 210, 0.16);
+}
+
+.shadow-store-btn {
+  box-shadow: 0px 3px 23px rgba(210, 210, 210, 0.41);
+}
+
+.shadow-nav-sticky {
+  box-shadow: 0px 20px 50px 0px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-purple-sq {
+  box-shadow: 0px 7px 10px rgba(110, 90, 245, 0.27);
+}
+
+.shadow-pink-sq {
+  box-shadow: 0px 7px 10px rgba(255, 110, 163, 0.27);
+}
+
+.shadow-orange-sq {
+  box-shadow: 0px 7px 10px rgba(255, 142, 81, 0.27);
 }
 
