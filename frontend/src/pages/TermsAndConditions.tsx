@@ -503,15 +503,15 @@ export const TermsAndConditions: React.FC = () => {
               <ArrowLeft className="h-4 w-4" />
             </button>
 
-            <Link to={user ? '/home' : '/'} className="flex items-center gap-2.5">
+            <Link to={user ? '/home' : '/'} className="flex items-center gap-2 sm:gap-2.5 min-w-0">
               <div className="h-8 w-8 rounded-xl bg-[#19A974] flex items-center justify-center text-white shrink-0 shadow-xs">
                 <Heart className="h-4 w-4 fill-white" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-bold tracking-tight text-[#102A43] dark:text-white text-base leading-none">
+              <div className="flex flex-col min-w-0">
+                <span className="font-bold tracking-tight text-[#102A43] dark:text-white text-sm sm:text-base leading-none truncate">
                   Nearby HelpUp
                 </span>
-                <span className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium mt-0.5">
+                <span className="text-[10px] sm:text-[11px] text-[#64748B] dark:text-slate-400 font-medium mt-0.5 truncate hidden xs:inline">
                   Community Terms & Agreement
                 </span>
               </div>
@@ -626,12 +626,12 @@ export const TermsAndConditions: React.FC = () => {
           </div>
 
           {/* Categories */}
-          <div className="flex flex-wrap gap-1.5 shrink-0">
+          <div className="flex flex-wrap gap-1.5 shrink-0 overflow-x-auto scrollbar-none touch-pan-x pb-1 sm:pb-0">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === cat
                     ? 'bg-[#102A43] text-white dark:bg-[#19A974] shadow-xs'
                     : 'bg-[#F8FAFC] dark:bg-slate-800 text-[#64748B] dark:text-slate-300 border border-[#E2E8F0] dark:border-slate-700 hover:bg-slate-100'

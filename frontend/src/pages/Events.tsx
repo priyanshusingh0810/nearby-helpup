@@ -122,12 +122,12 @@ export const Events: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
+    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-5 sm:gap-6 md:gap-8 pb-20 w-full">
       
       {/* MODAL: Host Event Form */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-4 animate-fade-in">
-          <GlassCard className="max-w-md w-full p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto shadow-xl border-[#E2E8F0]" hoverEffect={false}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-3 sm:p-4 animate-fade-in">
+          <GlassCard className="max-w-md w-full p-4 sm:p-6 flex flex-col gap-4 max-h-[90dvh] overflow-y-auto shadow-xl border-[#E2E8F0]" hoverEffect={false}>
             <div className="flex justify-between items-center border-b border-[#E2E8F0] dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-[#102A43] dark:text-white flex items-center gap-2">
                 <Sparkles className="h-4.5 w-4.5 text-[#38BDF8]" />
@@ -167,7 +167,7 @@ export const Events: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Location Name</label>
                   <input
@@ -189,7 +189,7 @@ export const Events: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Date & Time</label>
                   <input

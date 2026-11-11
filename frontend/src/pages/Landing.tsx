@@ -25,7 +25,9 @@ import {
   Award,
   ChevronRight,
   Shield,
-  PhoneCall
+  PhoneCall,
+  Menu,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -37,6 +39,7 @@ export const Landing: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
   const [searchVal, setSearchVal] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -190,14 +193,14 @@ export const Landing: React.FC = () => {
       <header className="sticky top-0 z-50 border-b border-[#E2E8F0] dark:border-[#1E293B] bg-white/95 dark:bg-[#102A43]/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#19A974] text-white shadow-sm shadow-[#19A974]/30 transition-transform group-hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#19A974] text-white shadow-sm shadow-[#19A974]/30 transition-transform group-hover:scale-105 shrink-0">
               <Heart className="h-5 w-5 fill-white" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight text-[#102A43] dark:text-white">
+            <div className="flex flex-col min-w-0">
+              <span className="text-base font-bold tracking-tight text-[#102A43] dark:text-white truncate">
                 Nearby HelpUp
               </span>
-              <span className="text-[11px] text-[#64748B] dark:text-[#9FB3C8] font-medium">
+              <span className="text-[10px] sm:text-[11px] text-[#64748B] dark:text-[#9FB3C8] font-medium truncate">
                 Hyperlocal Community Platform
               </span>
             </div>
@@ -211,11 +214,12 @@ export const Landing: React.FC = () => {
             <a href="#faqs" className="hover:text-[#102A43] dark:hover:text-white transition-colors">FAQs</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl text-[#64748B] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] transition-colors"
               title="Toggle Theme"
+              aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-amber-400" /> : <Moon className="h-4.5 w-4.5 text-[#102A43]" />}
             </button>
@@ -223,29 +227,114 @@ export const Landing: React.FC = () => {
             {user ? (
               <Link
                 to="/home"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm transition-all"
               >
                 <span>Dashboard</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   to="/login"
-                  className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#102A43] dark:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] transition-colors"
+                  className="hidden xs:inline-flex px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold text-[#102A43] dark:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/login"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm shadow-[#19A974]/25 transition-all hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-1 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm shadow-[#19A974]/25 transition-all"
                 >
-                  <span>Join Neighborhood</span>
+                  <span className="hidden sm:inline">Join Neighborhood</span>
+                  <span className="sm:hidden">Join</span>
                 </Link>
               </div>
             )}
+
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 rounded-xl text-[#64748B] hover:text-[#102A43] dark:hover:text-white hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] md:hidden transition-colors"
+              aria-label="Open mobile menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer for Landing */}
+        {mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 z-50 flex md:hidden bg-[#102A43]/75 backdrop-blur-sm animate-fade-in"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div 
+              className="w-72 max-w-[85vw] bg-white dark:bg-[#102A43] border-r border-[#E2E8F0] dark:border-[#1A365D] h-full p-5 flex flex-col justify-between text-[#1E293B] dark:text-white shadow-2xl animate-slide-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col gap-5 overflow-y-auto">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] dark:border-[#1A365D]">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#19A974] text-white">
+                      <Heart className="h-4 w-4 fill-white" />
+                    </div>
+                    <span className="text-sm font-bold text-[#102A43] dark:text-white">Nearby HelpUp</span>
+                  </div>
+                  <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <nav className="flex flex-col gap-1 text-xs font-semibold">
+                  {[
+                    { label: 'How It Works', href: '#how-it-works' },
+                    { label: 'Categories', href: '#categories' },
+                    { label: 'Trust & Safety', href: '#community' },
+                    { label: 'Testimonials', href: '#testimonials' },
+                    { label: 'FAQs', href: '#faqs' },
+                  ].map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-3 rounded-xl hover:bg-[#F1F5F9] dark:hover:bg-[#1A365D] text-[#1E293B] dark:text-[#F0F4F8] transition-colors"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="pt-4 border-t border-[#E2E8F0] dark:border-[#1A365D] flex flex-col gap-2.5">
+                {user ? (
+                  <Link
+                    to="/home"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 rounded-xl text-center text-xs font-bold text-white bg-[#19A974]"
+                  >
+                    Go to Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-2.5 rounded-xl text-center text-xs font-bold text-white bg-[#19A974]"
+                    >
+                      Join Neighborhood
+                    </Link>
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-[#102A43] dark:text-white border border-[#E2E8F0] dark:border-[#1A365D]"
+                    >
+                      Sign In
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}

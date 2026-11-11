@@ -99,7 +99,7 @@ export const SaaSUpgradeModal: React.FC<SaaSUpgradeModalProps> = ({ isOpen, onCl
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-          className="relative w-full max-w-5xl rounded-3xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-2xl p-6 sm:p-10 my-8 overflow-hidden"
+          className="relative w-full max-w-5xl rounded-3xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-2xl p-4 sm:p-10 my-4 sm:my-8 max-h-[92dvh] overflow-y-auto"
         >
           {/* Close Button */}
           <button

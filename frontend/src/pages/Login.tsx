@@ -437,7 +437,7 @@ export const Login: React.FC = () => {
   const inputClassNoIcon = "h-11 w-full rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] px-4 text-xs outline-none transition-all focus:border-[#19A974] focus:ring-2 focus:ring-[#19A974]/20 text-[#1E293B] dark:text-white placeholder:text-[#94A3B8]";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] dark:bg-[#0F172A] px-4 py-12 transition-colors relative overflow-hidden">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-[#F8FAFC] dark:bg-[#0F172A] px-3 sm:px-4 py-8 sm:py-12 transition-colors relative overflow-hidden">
       {/* Subtle background glow */}
       <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-[#19A974]/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#38BDF8]/10 rounded-full blur-[140px] pointer-events-none" />
@@ -445,12 +445,12 @@ export const Login: React.FC = () => {
       <div className="w-full max-w-md relative z-10">
         
         {/* Brand Header */}
-        <div className="flex flex-col items-center mb-8 animate-fade-in">
+        <div className="flex flex-col items-center mb-6 sm:mb-8 animate-fade-in">
           <Link to="/" className="flex flex-col items-center group">
             <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[#19A974] text-white shadow-md shadow-[#19A974]/30 mb-3 transition-transform group-hover:scale-105">
               <Heart className="h-6 w-6 fill-white" />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-[#102A43] dark:text-white text-center">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#102A43] dark:text-white text-center">
               {isSignUp ? 'Create Your HelpUp Account' : 'Welcome Back to HelpUp'}
             </h2>
             <p className="mt-1.5 text-xs text-[#64748B] dark:text-[#9FB3C8] text-center">
@@ -459,7 +459,7 @@ export const Login: React.FC = () => {
           </Link>
         </div>
 
-        <GlassCard className="p-6 sm:p-8" hoverEffect={false}>
+        <GlassCard className="p-4 sm:p-8" hoverEffect={false}>
           {error && (
             <div className="mb-4 flex items-center gap-2.5 rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 p-3 text-xs font-semibold text-[#EF4444] animate-fade-in">
               <ShieldAlert className="h-4.5 w-4.5 shrink-0" />
@@ -702,8 +702,8 @@ export const Login: React.FC = () => {
 
       {/* --- GOOGLE ACCOUNT CHOOSER & AUTHORIZATION MODAL --- */}
       {showGoogleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-fade-in">
-          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 p-6 rounded-3xl max-w-md w-full shadow-2xl flex flex-col gap-4 gradient-border animate-scale-in max-h-[92vh] overflow-y-auto text-left">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-3 sm:p-4 animate-fade-in">
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 p-4 sm:p-6 rounded-3xl max-w-md w-full shadow-2xl flex flex-col gap-4 gradient-border animate-scale-in max-h-[92dvh] overflow-y-auto text-left">
             
             {/* Google Brand Header */}
             <div className="text-center pb-2 border-b border-slate-100 dark:border-slate-800">

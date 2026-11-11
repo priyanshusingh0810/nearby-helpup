@@ -37,6 +37,7 @@ export const CommunityDetail: React.FC = () => {
 
   // Chat message input
   const [messageText, setMessageText] = useState('');
+  const [mobileTab, setMobileTab] = useState<'chat' | 'channels' | 'info'>('chat');
   
   // New channel modal
   const [showChannelModal, setShowChannelModal] = useState(false);
@@ -222,10 +223,51 @@ export const CommunityDetail: React.FC = () => {
   const isAdminOrMod = userRole === 'admin' || userRole === 'moderator';
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-65px)] overflow-hidden w-full bg-[#F8FAFC] dark:bg-slate-900">
+    <div className="flex-1 flex flex-col md:flex-row h-[calc(100dvh-64px-3.5rem)] md:h-[calc(100dvh-65px)] overflow-hidden w-full bg-[#F8FAFC] dark:bg-slate-900">
       
+      {/* Mobile Top Tabs for Members */}
+      {isMember && (
+        <div className="md:hidden flex items-center border-b border-[#E2E8F0] dark:border-[#334155] bg-white dark:bg-[#1E293B] shrink-0">
+          <button
+            type="button"
+            onClick={() => setMobileTab('channels')}
+            className={`flex-1 py-2.5 text-xs font-bold text-center border-b-2 transition-colors ${
+              mobileTab === 'channels'
+                ? 'border-[#19A974] text-[#19A974]'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            # Channels
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('chat')}
+            className={`flex-1 py-2.5 text-xs font-bold text-center border-b-2 transition-colors ${
+              mobileTab === 'chat'
+                ? 'border-[#19A974] text-[#19A974]'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            Chat
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('info')}
+            className={`flex-1 py-2.5 text-xs font-bold text-center border-b-2 transition-colors ${
+              mobileTab === 'info'
+                ? 'border-[#19A974] text-[#19A974]'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            Info & Polls
+          </button>
+        </div>
+      )}
+
       {/* 1. Channel Sidepanel */}
-      <aside className="w-full md:w-64 bg-white dark:bg-[#1E293B] border-r border-[#E2E8F0] dark:border-[#334155] flex flex-col justify-between shrink-0 h-auto md:h-full">
+      <aside className={`w-full md:w-64 bg-white dark:bg-[#1E293B] border-r border-[#E2E8F0] dark:border-[#334155] flex-col justify-between shrink-0 h-full overflow-y-auto ${
+        isMember ? (mobileTab === 'channels' ? 'flex' : 'hidden md:flex') : 'flex'
+      }`}>
         <div className="flex flex-col gap-5 p-4 overflow-y-auto">
           {/* Back link & Title */}
           <div>
@@ -281,7 +323,10 @@ export const CommunityDetail: React.FC = () => {
                 {channels.map((chan) => (
                   <button
                     key={chan.id}
-                    onClick={() => setActiveChannelId(chan.id)}
+                    onClick={() => {
+                      setActiveChannelId(chan.id);
+                      setMobileTab('chat');
+                    }}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium w-full text-left transition-all ${
                       activeChannelId === chan.id
                         ? 'bg-[#102A43] text-white shadow-xs'
@@ -302,7 +347,9 @@ export const CommunityDetail: React.FC = () => {
       </aside>
 
       {/* 2. Main Chat Panel */}
-      <div className="flex-1 flex flex-col justify-between bg-white dark:bg-slate-900 h-full relative border-r border-[#E2E8F0] dark:border-[#334155]">
+      <div className={`flex-1 flex flex-col justify-between bg-white dark:bg-slate-900 h-full relative border-r border-[#E2E8F0] dark:border-[#334155] ${
+        isMember ? (mobileTab === 'chat' ? 'flex' : 'hidden md:flex') : 'flex'
+      }`}>
         
         {isMember ? (
           <>
@@ -393,7 +440,9 @@ export const CommunityDetail: React.FC = () => {
 
       {/* 3. Right Sidebar Details Panel */}
       {isMember && (
-        <aside className="w-full md:w-80 bg-white dark:bg-[#1E293B] border-l border-[#E2E8F0] dark:border-[#334155] overflow-y-auto h-auto md:h-full shrink-0 flex flex-col gap-6 p-5">
+        <aside className={`w-full md:w-80 bg-white dark:bg-[#1E293B] border-l border-[#E2E8F0] dark:border-[#334155] overflow-y-auto h-full shrink-0 flex-col gap-6 p-4 sm:p-5 ${
+          mobileTab === 'info' ? 'flex' : 'hidden md:flex'
+        }`}>
           
           {/* Guidelines */}
           <div className="flex flex-col gap-2">

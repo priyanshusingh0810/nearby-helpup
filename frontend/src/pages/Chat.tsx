@@ -172,7 +172,7 @@ export const Chat: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden w-full bg-[#F8FAFC] dark:bg-[#0F172A] text-left">
+    <div className="flex-1 flex flex-col md:flex-row h-[calc(100dvh-64px-3.5rem)] md:h-[calc(100dvh-64px)] overflow-hidden w-full bg-[#F8FAFC] dark:bg-[#0F172A] text-left">
       
       {/* 1. Conversations Sidebar */}
       <aside className={`w-full md:w-80 bg-white dark:bg-[#1E293B] border-r border-[#E2E8F0] dark:border-[#334155] flex flex-col h-full shrink-0 ${
@@ -405,11 +405,11 @@ export const Chat: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSend} className="p-3 sm:p-4 flex gap-2">
+              <form onSubmit={handleSend} className="p-2.5 sm:p-4 flex gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAttachments(!showAttachments)}
-                  className="h-11 w-11 rounded-xl border border-[#E2E8F0] dark:border-[#334155] text-[#64748B] hover:text-[#102A43] hover:bg-[#F8FAFC] dark:hover:bg-[#334155] flex items-center justify-center shrink-0 transition-colors"
+                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl border border-[#E2E8F0] dark:border-[#334155] text-[#64748B] hover:text-[#102A43] hover:bg-[#F8FAFC] dark:hover:bg-[#334155] flex items-center justify-center shrink-0 transition-colors"
                   title="Add attachments"
                 >
                   <Plus className="h-4.5 w-4.5" />
@@ -420,12 +420,12 @@ export const Chat: React.FC = () => {
                   placeholder="Type a message to coordinate pickup or help..."
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  className="flex-1 h-11 px-4 text-xs sm:text-sm rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] outline-none focus:border-[#19A974] text-[#1E293B] dark:text-white placeholder-[#94A3B8]"
+                  className="flex-1 h-10 sm:h-11 px-3 sm:px-4 text-xs sm:text-sm rounded-xl bg-[#F8FAFC] dark:bg-[#0F172A] border border-[#E2E8F0] dark:border-[#334155] outline-none focus:border-[#19A974] text-[#1E293B] dark:text-white placeholder-[#94A3B8]"
                 />
 
                 <button
                   type="submit"
-                  className="h-11 w-11 rounded-xl bg-[#19A974] hover:bg-[#148A5E] text-white flex items-center justify-center transition-all shadow-xs shrink-0"
+                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-[#19A974] hover:bg-[#148A5E] text-white flex items-center justify-center transition-all shadow-xs shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </button>

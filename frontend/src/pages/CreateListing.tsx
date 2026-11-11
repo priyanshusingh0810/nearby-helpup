@@ -134,7 +134,7 @@ export const CreateListing: React.FC = () => {
         <span>Back to Dashboard</span>
       </button>
 
-      <GlassCard className="p-6 sm:p-8" hoverEffect={false}>
+      <GlassCard className="p-4 sm:p-8" hoverEffect={false}>
         <div className="flex flex-col gap-6">
           
           {/* Header & Step Tracker */}
@@ -309,7 +309,7 @@ export const CreateListing: React.FC = () => {
                   <label className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
                     Urgency Level
                   </label>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-2.5">
                     {[
                       { id: 'normal', label: 'Standard', color: 'border-[#19A974] text-[#19A974] bg-[#F0FDF8]' },
                       { id: 'urgent', label: 'Urgent', color: 'border-amber-500 text-amber-600 bg-amber-50' },
@@ -319,7 +319,7 @@ export const CreateListing: React.FC = () => {
                         key={lvl.id}
                         type="button"
                         onClick={() => setUrgency(lvl.id as any)}
-                        className={`py-2.5 px-3 rounded-xl border text-xs font-bold text-center transition-all ${
+                        className={`py-2.5 px-2 sm:px-3 rounded-xl border text-xs font-bold text-center transition-all ${
                           urgency === lvl.id 
                             ? `${lvl.color} shadow-xs` 
                             : 'bg-white dark:bg-[#0F172A] border-[#E2E8F0] dark:border-[#334155] text-[#64748B]'

@@ -93,12 +93,12 @@ export const Communities: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
+    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-5 sm:gap-6 md:gap-8 pb-20 w-full">
       
       {/* Create Community Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-4 animate-fade-in">
-          <GlassCard className="max-w-md w-full p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto shadow-xl border-[#E2E8F0]" hoverEffect={false}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-3 sm:p-4 animate-fade-in">
+          <GlassCard className="max-w-md w-full p-4 sm:p-6 flex flex-col gap-4 max-h-[90dvh] overflow-y-auto shadow-xl border-[#E2E8F0]" hoverEffect={false}>
             <div className="flex justify-between items-center border-b border-[#E2E8F0] dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-[#102A43] dark:text-white flex items-center gap-2">
                 <Sparkles className="h-4.5 w-4.5 text-[#38BDF8]" />
@@ -106,7 +106,7 @@ export const Communities: React.FC = () => {
               </h3>
               <button 
                 onClick={() => setShowModal(false)} 
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1"
                 aria-label="Close modal"
               >
                 <X className="h-5 w-5" />
@@ -142,7 +142,7 @@ export const Communities: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Category</label>
                   <select
@@ -228,10 +228,10 @@ export const Communities: React.FC = () => {
         </div>
 
         {/* Scrollable Categories List */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none max-w-full">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none max-w-full touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               selectedCategory === null
                 ? 'bg-[#102A43] text-white shadow-xs'
                 : 'bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-slate-600 dark:text-slate-300 hover:bg-slate-50'
@@ -243,7 +243,7 @@ export const Communities: React.FC = () => {
             <button
               key={c.name}
               onClick={() => setSelectedCategory(c.name)}
-              className={`rounded-xl px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1 ${
+              className={`rounded-xl px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-all flex items-center gap-1 ${
                 selectedCategory === c.name
                   ? 'bg-[#102A43] text-white shadow-xs'
                   : 'bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-slate-600 dark:text-slate-300 hover:bg-slate-50'

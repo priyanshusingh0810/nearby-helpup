@@ -195,3 +195,33 @@ h1, h2, h3, h4, h5, h6 {
   outline-offset: 2px;
   border-radius: 8px;
 }
+
+/* Mobile & Touch Responsive Utilities */
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.touch-pan-x {
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Eliminate tap delay and highlight on mobile devices */
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+

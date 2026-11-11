@@ -163,8 +163,8 @@ export const Profile: React.FC = () => {
       
       {/* Verification Modal */}
       {showVerifyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-4 animate-fade-in">
-          <GlassCard className="max-w-md w-full p-6 flex flex-col gap-4 shadow-xl border-[#E2E8F0]" hoverEffect={false}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#102A43]/50 backdrop-blur-sm p-3 sm:p-4 animate-fade-in">
+          <GlassCard className="max-w-md w-[calc(100vw-2rem)] p-4 sm:p-6 flex flex-col gap-4 shadow-xl border-[#E2E8F0] max-h-[90dvh] overflow-y-auto" hoverEffect={false}>
             <div className="flex justify-between items-center border-b border-[#E2E8F0] dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-[#102A43] dark:text-white flex items-center gap-2">
                 <Sparkles className="h-4.5 w-4.5 text-[#38BDF8]" />
@@ -285,13 +285,13 @@ export const Profile: React.FC = () => {
       )}
 
       {/* Profile Banner & Header Card */}
-      <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-        <div className="flex flex-col md:flex-row gap-5 items-start md:items-center">
+      <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 sm:p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-5 sm:gap-6 items-center sm:items-start md:items-center justify-between text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-center sm:items-start md:items-center">
           <div className="relative">
             <img
               src={profileUser.profile_photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
               alt={profileUser.name}
-              className="h-24 w-24 rounded-2xl object-cover bg-slate-50 border-2 border-white dark:border-slate-800 shadow-sm"
+              className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl object-cover bg-slate-50 border-2 border-white dark:border-slate-800 shadow-sm"
             />
             {profileUser.identity_verified && (
               <div className="absolute -bottom-1 -right-1 bg-[#19A974] text-white p-1 rounded-full shadow-md" title="Verified Neighbor">
@@ -300,9 +300,9 @@ export const Profile: React.FC = () => {
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-[#102A43] dark:text-white">
+          <div className="flex flex-col gap-1.5 items-center sm:items-start">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#102A43] dark:text-white">
                 {profileUser.name}
               </h1>
 
@@ -338,7 +338,7 @@ export const Profile: React.FC = () => {
 
             <p className="text-xs text-slate-500">@{profileUser.username}</p>
 
-            <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs text-slate-500 mt-1">
               <MapPin className="h-4 w-4 text-[#38BDF8] shrink-0" />
               <span>{profileUser.location_name}</span>
               {profileUser.college && (
@@ -352,7 +352,7 @@ export const Profile: React.FC = () => {
         </div>
 
         {/* Action Controls */}
-        <div className="flex gap-2.5 w-full md:w-auto shrink-0 justify-end">
+        <div className="flex flex-wrap gap-2 sm:gap-2.5 w-full md:w-auto shrink-0 justify-center sm:justify-start md:justify-end mt-2 md:mt-0">
           {isOwnProfile ? (
             <>
               {!profileUser.identity_verified && (

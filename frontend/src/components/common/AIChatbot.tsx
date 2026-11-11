@@ -83,19 +83,19 @@ export const AIChatbot: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
       
       {/* 1. Chat Window */}
       {isOpen && (
         <GlassCard 
-          className="w-[340px] sm:w-[380px] h-[500px] mb-4 flex flex-col justify-between overflow-hidden shadow-2xl border-[#E2E8F0] dark:border-slate-800 animate-fade-in"
+          className="w-[calc(100vw-2rem)] max-w-[380px] h-[min(500px,calc(100dvh-7.5rem))] mb-3 flex flex-col justify-between overflow-hidden shadow-2xl border-[#E2E8F0] dark:border-slate-800 animate-fade-in"
           hoverEffect={false}
         >
           {/* Header Panel with Navy to Sky Blue Gradient */}
-          <div className="bg-gradient-to-r from-[#102A43] via-[#0C4A6E] to-[#0284C7] p-4 text-white flex items-center justify-between shadow-xs">
+          <div className="bg-gradient-to-r from-[#102A43] via-[#0C4A6E] to-[#0284C7] p-3.5 sm:p-4 text-white flex items-center justify-between shadow-xs shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center font-bold border border-white/20">
-                <Sparkles className="h-5 w-5 text-[#38BDF8]" />
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center font-bold border border-white/20">
+                <Sparkles className="h-4.5 w-4.5 text-[#38BDF8]" />
               </div>
               <div>
                 <h4 className="text-xs font-bold">Nearby HelpUp AI</h4>
@@ -255,10 +255,11 @@ export const AIChatbot: React.FC = () => {
       {/* 2. Floating Toggle Button with Sky Blue Gradient */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-13 w-13 rounded-full bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] hover:scale-105 active:scale-95 text-white flex items-center justify-center transition-all shadow-xl shadow-[#38BDF8]/30 border-2 border-white/60 dark:border-slate-900"
+        className="h-12 w-12 sm:h-13 sm:w-13 rounded-full bg-gradient-to-tr from-[#0284C7] via-[#0EA5E9] to-[#38BDF8] hover:scale-105 active:scale-95 text-white flex items-center justify-center transition-all shadow-xl shadow-[#38BDF8]/30 border-2 border-white/60 dark:border-slate-900"
         title="Nearby HelpUp AI Assistant"
+        aria-label="Toggle AI Assistant"
       >
-        {isOpen ? <X className="h-6 w-6" /> : <Sparkles className="h-6 w-6 animate-pulse" />}
+        {isOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 animate-pulse" />}
       </button>
 
     </div>

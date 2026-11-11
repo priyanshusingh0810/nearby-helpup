@@ -163,7 +163,7 @@ export const ListingDetails: React.FC = () => {
         <div className="md:col-span-2 flex flex-col gap-6">
           <GlassCard className="overflow-hidden" hoverEffect={false}>
             {listing.images && (
-              <div className="h-64 sm:h-84 bg-[#F1F5F9] dark:bg-[#0F172A] overflow-hidden relative">
+              <div className="h-56 sm:h-84 bg-[#F1F5F9] dark:bg-[#0F172A] overflow-hidden relative">
                 <img
                   src={listing.images.split(';')[0]}
                   alt={listing.title}
@@ -180,7 +180,7 @@ export const ListingDetails: React.FC = () => {
               </div>
             )}
 
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-4 sm:p-6 flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <h1 className="text-xl sm:text-2xl font-extrabold text-[#102A43] dark:text-white tracking-tight">
                   {listing.title}

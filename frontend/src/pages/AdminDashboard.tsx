@@ -77,12 +77,12 @@ export const AdminDashboard: React.FC = () => {
   const verifiedUsers = users.filter(u => u.identity_verified);
 
   return (
-    <div className="flex-1 p-6 md:p-8 max-w-6xl mx-auto flex flex-col gap-6 md:gap-8 pb-20 w-full">
+    <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-6xl mx-auto flex flex-col gap-5 sm:gap-6 md:gap-8 pb-20 w-full">
       
       {/* Header Banner */}
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight text-[#102A43] dark:text-white">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#102A43] dark:text-white">
             Admin Governance Center
           </h1>
           <span className="rounded-full bg-[#102A43] text-white px-2.5 py-0.5 text-[10px] font-bold">
@@ -96,7 +96,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Analytics Summary widgets */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
             <div className="p-2.5 bg-[#38BDF8]/10 rounded-xl text-[#38BDF8]">
               <Users className="h-5 w-5" />
@@ -142,10 +142,10 @@ export const AdminDashboard: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b border-[#E2E8F0] dark:border-slate-800">
+      <div className="flex gap-4 border-b border-[#E2E8F0] dark:border-slate-800 overflow-x-auto scrollbar-none whitespace-nowrap">
         <button
           onClick={() => setTab('verification')}
-          className={`pb-3 text-xs font-bold transition-all relative ${
+          className={`pb-3 text-xs font-bold transition-all relative shrink-0 ${
             tab === 'verification'
               ? 'text-[#102A43] dark:text-white'
               : 'text-slate-400 hover:text-slate-600'
@@ -158,7 +158,7 @@ export const AdminDashboard: React.FC = () => {
         </button>
         <button
           onClick={() => setTab('listings')}
-          className={`pb-3 text-xs font-bold transition-all relative ${
+          className={`pb-3 text-xs font-bold transition-all relative shrink-0 ${
             tab === 'listings'
               ? 'text-[#102A43] dark:text-white'
               : 'text-slate-400 hover:text-slate-600'
@@ -178,26 +178,26 @@ export const AdminDashboard: React.FC = () => {
             pendingVerificationUsers.map((u) => (
               <div 
                 key={u.id} 
-                className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xs"
+                className="bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs"
               >
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3.5 min-w-0">
                   <img 
                     src={u.profile_photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} 
                     alt="" 
-                    className="h-11 w-11 rounded-xl object-cover bg-slate-100 border border-[#E2E8F0]" 
+                    className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl object-cover bg-slate-100 border border-[#E2E8F0] shrink-0" 
                   />
-                  <div>
-                    <h4 className="text-xs font-bold text-[#102A43] dark:text-white">{u.name}</h4>
-                    <p className="text-[10px] text-slate-400">@{u.username} • {u.email}</p>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-[#102A43] dark:text-white truncate">{u.name}</h4>
+                    <p className="text-[10px] text-slate-400 truncate">@{u.username} • {u.email}</p>
                     {u.college && (
-                      <span className="text-[9px] bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full font-medium mt-1 inline-block">
+                      <span className="text-[9px] bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full font-medium mt-1 inline-block truncate max-w-full">
                         {u.college}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-stretch md:self-auto shrink-0 justify-end">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 self-stretch sm:self-auto shrink-0 justify-start sm:justify-end">
                   <div className="flex items-center gap-1.5 text-[10px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-xl border border-amber-200">
                     <FileText className="h-4 w-4" />
                     <span>ID_Affiliation.png</span>

@@ -281,8 +281,8 @@ export const Home: React.FC = () => {
     <div className="flex-1 flex flex-col bg-[#F8FAFC] dark:bg-[#0F172A] text-[#1E293B] dark:text-[#F8FAFC] font-sans w-full min-h-screen">
       
       {/* 1. Personalized Header & Quick Metrics */}
-      <div className="bg-white dark:bg-[#102A43] border-b border-[#E2E8F0] dark:border-[#1A365D] px-4 sm:px-8 py-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white dark:bg-[#102A43] border-b border-[#E2E8F0] dark:border-[#1A365D] px-4 sm:px-8 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-[#19A974] uppercase tracking-wider bg-[#F0FDF8] dark:bg-[#19A974]/20 px-2.5 py-0.5 rounded-full">
@@ -301,10 +301,10 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Quick Actions & Helper Availability Switch */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
             <button
               onClick={toggleHelperStatus}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+              className={`flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
                 isAvailableHelper 
                   ? 'bg-[#F0FDF8] dark:bg-[#19A974]/15 border-[#19A974]/40 text-[#19A974]' 
                   : 'bg-[#F1F5F9] dark:bg-[#1E293B] border-[#E2E8F0] dark:border-[#334155] text-[#64748B]'
@@ -319,7 +319,7 @@ export const Home: React.FC = () => {
 
             <Link
               to="/create-listing"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm shadow-[#19A974]/30 transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs text-white bg-[#19A974] hover:bg-[#148A5E] shadow-sm shadow-[#19A974]/30 transition-all hover:-translate-y-0.5"
             >
               <Plus className="h-4 w-4" />
               <span>Request Assistance</span>
@@ -327,7 +327,7 @@ export const Home: React.FC = () => {
 
             <Link
               to="/emergency"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs text-[#EF4444] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 border border-[#EF4444]/30 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl font-bold text-xs text-[#EF4444] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 border border-[#EF4444]/30 transition-colors"
             >
               <AlertTriangle className="h-4 w-4" />
               <span>SOS Radar</span>
@@ -336,59 +336,59 @@ export const Home: React.FC = () => {
         </div>
 
         {/* 4 Metric Cards */}
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-xl bg-[#19A974]/15 text-[#19A974] flex items-center justify-center font-bold">
-              <Package className="h-5 w-5" />
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mt-5 sm:mt-6">
+          <div className="p-3 sm:p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2.5 sm:gap-3.5">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-[#19A974]/15 text-[#19A974] flex items-center justify-center font-bold shrink-0">
+              <Package className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <div className="text-xl font-extrabold text-[#102A43] dark:text-white">
+            <div className="min-w-0">
+              <div className="text-lg sm:text-xl font-extrabold text-[#102A43] dark:text-white">
                 {regularListings.length}
               </div>
-              <div className="text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8]">
+              <div className="text-[10px] sm:text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8] truncate">
                 Requests Nearby
               </div>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-xl bg-[#38BDF8]/15 text-[#0284C7] dark:text-[#38BDF8] flex items-center justify-center font-bold">
-              <Users className="h-5 w-5" />
+          <div className="p-3 sm:p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2.5 sm:gap-3.5">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-[#38BDF8]/15 text-[#0284C7] dark:text-[#38BDF8] flex items-center justify-center font-bold shrink-0">
+              <Users className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <div className="text-xl font-extrabold text-[#102A43] dark:text-white">
+            <div className="min-w-0">
+              <div className="text-lg sm:text-xl font-extrabold text-[#102A43] dark:text-white">
                 {helperTasks.length}
               </div>
-              <div className="text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8]">
+              <div className="text-[10px] sm:text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8] truncate">
                 Active Tasks
               </div>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-xl bg-[#19A974]/15 text-[#19A974] flex items-center justify-center font-bold">
-              <ShieldCheck className="h-5 w-5" />
+          <div className="p-3 sm:p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2.5 sm:gap-3.5">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-[#19A974]/15 text-[#19A974] flex items-center justify-center font-bold shrink-0">
+              <ShieldCheck className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <div className="text-xl font-extrabold text-[#102A43] dark:text-white">
+            <div className="min-w-0">
+              <div className="text-lg sm:text-xl font-extrabold text-[#102A43] dark:text-white">
                 {Math.round(user?.trust_score || 95)}%
               </div>
-              <div className="text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8]">
+              <div className="text-[10px] sm:text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8] truncate">
                 Trust Score
               </div>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
-              <ThumbsUp className="h-5 w-5" />
+          <div className="p-3 sm:p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] flex items-center gap-2.5 sm:gap-3.5">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold shrink-0">
+              <ThumbsUp className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <div className="text-xl font-extrabold text-[#102A43] dark:text-white">
+            <div className="min-w-0">
+              <div className="text-lg sm:text-xl font-extrabold text-[#102A43] dark:text-white">
                 {user?.total_ratings || 4}
               </div>
-              <div className="text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8]">
-                Community Endorsements
+              <div className="text-[10px] sm:text-[11px] font-medium text-[#64748B] dark:text-[#9FB3C8] truncate">
+                Endorsements
               </div>
             </div>
           </div>
@@ -456,7 +456,7 @@ export const Home: React.FC = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+          <div className="flex overflow-x-auto sm:grid sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5 pb-2 sm:pb-0 scrollbar-none touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
             {categoriesList.map((cat) => {
               const IconComp = cat.icon;
               const isSelected = selectedCategory === cat.name;
@@ -464,7 +464,7 @@ export const Home: React.FC = () => {
                 <button
                   key={cat.name}
                   onClick={() => setSelectedCategory(isSelected ? null : cat.name)}
-                  className={`p-3 rounded-xl border flex flex-col items-center justify-center text-center gap-1.5 transition-all ${
+                  className={`p-2.5 sm:p-3 rounded-xl border flex flex-col items-center justify-center text-center gap-1.5 transition-all min-w-[105px] sm:min-w-0 shrink-0 sm:shrink ${
                     isSelected 
                       ? 'bg-[#F0FDF8] dark:bg-[#19A974]/15 border-[#19A974] text-[#19A974] shadow-xs font-bold' 
                       : 'bg-white dark:bg-[#1E293B] border-[#E2E8F0] dark:border-[#334155] text-[#64748B] dark:text-[#9FB3C8] hover:border-[#19A974] hover:text-[#102A43] dark:hover:text-white'
@@ -481,10 +481,10 @@ export const Home: React.FC = () => {
         </div>
 
         {/* Toolbar: Type Pills & View Mode (Grid vs Map Discovery) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-[#E2E8F0] dark:border-[#334155]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 pt-2 border-t border-[#E2E8F0] dark:border-[#334155]">
           <div className="flex flex-wrap items-center gap-2">
-            {/* Type Selector */}
-            <div className="flex items-center gap-1 bg-white dark:bg-[#1E293B] p-1 rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs">
+            {/* Type Selector with touch scroll */}
+            <div className="flex items-center gap-1 bg-white dark:bg-[#1E293B] p-1 rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs overflow-x-auto scrollbar-none max-w-full touch-pan-x">
               {[
                 { id: 'all', label: 'All Requests' },
                 { id: 'borrow', label: 'Borrow' },
@@ -495,7 +495,7 @@ export const Home: React.FC = () => {
                 <button
                   key={t.id}
                   onClick={() => setSelectedType(t.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
                     selectedType === t.id
                       ? 'bg-[#102A43] text-white shadow-xs'
                       : 'text-[#64748B] dark:text-[#9FB3C8] hover:text-[#102A43] dark:hover:text-white'
@@ -507,7 +507,7 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Radius slider */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-xs font-medium text-[#64748B]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] text-xs font-medium text-[#64748B] shrink-0">
               <span>Radius: <strong className="text-[#102A43] dark:text-white">{radius}km</strong></span>
               <input
                 type="range"
@@ -516,13 +516,13 @@ export const Home: React.FC = () => {
                 step="1"
                 value={radius}
                 onChange={(e) => setRadius(parseFloat(e.target.value))}
-                className="w-20 h-1.5 bg-[#E2E8F0] dark:bg-[#334155] rounded-lg appearance-none cursor-pointer accent-[#19A974]"
+                className="w-16 sm:w-20 h-1.5 bg-[#E2E8F0] dark:bg-[#334155] rounded-lg appearance-none cursor-pointer accent-[#19A974]"
               />
             </div>
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center gap-1 bg-white dark:bg-[#1E293B] p-1 rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs self-start sm:self-auto">
+          <div className="flex items-center gap-1 bg-white dark:bg-[#1E293B] p-1 rounded-xl border border-[#E2E8F0] dark:border-[#334155] shadow-xs shrink-0 self-start lg:self-auto">
             <button
               onClick={() => setViewMode('grid')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
